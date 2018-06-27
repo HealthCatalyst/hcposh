@@ -2653,26 +2653,23 @@ function HCPosh
 						
 						$DocsData._hcposh.LastWriteTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.ffffff")
 						
-						if (!$OutVar)
+						#Directories
+						$DataDir = "$($OutDir)\static\data"; Create-Directory -Dir $DataDir;
+						
+						#Files
+						$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh).path -Parent)\docs\*";
+						$DocsDestinationPath = $OutDir;
+						$DataFilePath = "$($DataDir)\dataMart.js";
+						try
 						{
-							#Directories
-							$DataDir = "$($OutDir)\static\data"; Create-Directory -Dir $DataDir;
-							
-							#Files
-							$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh).path -Parent)\docs\*";
-							$DocsDestinationPath = $OutDir;
-							$DataFilePath = "$($DataDir)\dataMart.js";
-							try
-							{
-								if (($DocsData.Entities | Where-Object $validPublicEntities | measure).Count -eq 0) { throw; }
-								Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
-								'dataMart = ' + ($DocsData | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
-								$Msg = "$(" " * 4)Created new file --> $($DocsData._hcposh.FileBaseName)\$(Split-Path $DataDir -Leaf)\$(Split-Path $DataFilePath -Leaf)."; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
-							}
-							catch
-							{
-								$Msg = "$(" " * 4)Unable to find valid public entities or An error occurred when trying to create the docs folder structure"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
-							}
+							if (($DocsData.Entities | Where-Object $validPublicEntities | measure).Count -eq 0) { throw; }
+							Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
+							'dataMart = ' + ($DocsData | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
+							$Msg = "$(" " * 4)Created new file --> $($DocsData._hcposh.FileBaseName)\$(Split-Path $DataDir -Leaf)\$(Split-Path $DataFilePath -Leaf)."; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
+						}
+						catch
+						{
+							$Msg = "$(" " * 4)Unable to find valid public entities or An error occurred when trying to create the docs folder structure"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
 						}
 						$Msg = "Success!`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
 						$Output = New-Object PSObject
