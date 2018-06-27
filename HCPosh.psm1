@@ -75,6 +75,7 @@ function HCPosh
 		[Parameter(ParameterSetName = 'Impact')]
 		[Parameter(ParameterSetName = 'Docs')]
 		[Parameter(ParameterSetName = 'Graphviz')]
+		[Parameter(ParameterSetName = 'Diagrams')]
 		[string]$OutDir,
 		[Parameter(ParameterSetName = 'Data', Mandatory = $True)]
 		[switch]$Data,
@@ -86,8 +87,6 @@ function HCPosh
 		[Parameter(ParameterSetName = 'Data')]
 		[Parameter(ParameterSetName = 'Docs')]
 		[switch]$OutVar,
-		[Parameter(ParameterSetName = 'Docs')]
-		[switch]$OutZip,
 		[Parameter(ParameterSetName = 'Data')]
 		[switch]$Raw,
 		[Parameter(ParameterSetName = 'Data')]
@@ -96,6 +95,9 @@ function HCPosh
 		[switch]$Docs,
 		[Parameter(ParameterSetName = 'Diagrams', Mandatory = $True)]
 		[switch]$Diagrams,
+		[Parameter(ParameterSetName = 'Diagrams')]
+		[Parameter(ParameterSetName = 'Docs')]
+		[switch]$OutZip,
 		[Parameter(ParameterSetName = 'Graphviz', Mandatory = $True)]
 		[switch]$Graphviz,
 		[Parameter(ParameterSetName = 'Graphviz')]
@@ -1569,7 +1571,7 @@ function HCPosh
 						[psobject]$DocsData,
 						[Parameter(Mandatory = $True)]
 						[string]$OutDir,
-						[string]$OutZip
+						[switch]$OutZip
 					)
 					begin
 					{
@@ -2684,12 +2686,12 @@ function HCPosh
 						{
 							try
 							{
-								Zip -Directory $DocsDestinationPath -Destination $OutZip
+								Zip -Directory $DocsDestinationPath -Destination ($DocsDestinationPath + '_docs.zip')
 								if (Test-Path $DocsDestinationPath)
 								{
 									Remove-Item $DocsDestinationPath -Recurse -Force | Out-Null
 								}
-								$Msg = "$(" " * 4)Zipped file of directory --> $($OutZip)"; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
+								$Msg = "$(" " * 4)Zipped file of directory --> $($DocsDestinationPath + '_docs.zip')"; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
 							}
 							catch
 							{
@@ -2711,7 +2713,8 @@ function HCPosh
 						[Parameter(Mandatory = $True)]
 						[psobject]$DocsData,
 						[Parameter(Mandatory = $True)]
-						[string]$OutDir
+						[string]$OutDir,
+						[switch]$OutZip
 					)
 					begin
 					{
@@ -2778,6 +2781,22 @@ function HCPosh
 						HCPosh -Graphviz -InputDir $GvDir -OutDir "$($DiagramsDir)\pdf" -OutType pdf
 						HCPosh -Graphviz -InputDir $GvDir -OutDir "$($DiagramsDir)\png" -OutType png
 						#endregion
+						if ($OutZip)
+						{
+							try
+							{
+								Zip -Directory $DiagramsDir -Destination ($DiagramsDir + '_diagrams.zip')
+								if (Test-Path $DiagramsDir)
+								{
+									Remove-Item $DiagramsDir -Recurse -Force | Out-Null
+								}
+								$Msg = "$(" " * 4)Zipped file of directory --> $($DiagramsDir + '_diagrams.zip')"; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
+							}
+							catch
+							{
+								$Msg = "$(" " * 4)Unable to zip the diagrams directory"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+							}
+						}						
 					}
 					end
 					{
@@ -3299,11 +3318,11 @@ function HCPosh
 					{
 						if ($OutVar)
 						{
-							(Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip ($NewOutDir + '_docs.zip') | Select-Object DocsData).DocsData
+							(Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
 						}
 						else
 						{
-							Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip ($NewOutDir + '_docs.zip') | Out-Null
+							Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
 						}
 					}
 					else
@@ -3324,11 +3343,25 @@ function HCPosh
 				{
 					$OutDir = (Get-Location).Path + '\_hcposh_diagrams'
 				}
-				$DocsDataArr = HCPosh -Docs -OutVar | Where-Object { $_ };
+				if ($OutZip)
+				{
+					$DocsDataArr = HCPosh -Docs -OutVar -OutDir $OutDir -OutZip | Where-Object { $_ };
+				}
+				else
+				{
+					$DocsDataArr = HCPosh -Docs -OutVar -OutDir $OutDir | Where-Object { $_ };
+				}
 				forEach ($DocsData in $DocsDataArr)
 				{
 					$NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
-					Get-Diagrams -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+					if ($OutZip)
+					{
+						Get-Diagrams -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
+					}
+					else
+					{
+						Get-Diagrams -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+					}
 				}
 			}
 			'Impact' {
