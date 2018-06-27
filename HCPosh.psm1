@@ -86,6 +86,8 @@ function HCPosh
 		[Parameter(ParameterSetName = 'Data')]
 		[Parameter(ParameterSetName = 'Docs')]
 		[switch]$OutVar,
+		[Parameter(ParameterSetName = 'Docs')]
+		[switch]$OutZip,
 		[Parameter(ParameterSetName = 'Data')]
 		[switch]$Raw,
 		[Parameter(ParameterSetName = 'Data')]
@@ -106,6 +108,7 @@ function HCPosh
 	
 	begin
 	{
+		#region FUNCTION FOR WRITING LOGS
 		function Write-Log
 		{
 			Param (
@@ -129,6 +132,18 @@ function HCPosh
 				Add-content $LogFile -Value ($Output | ConvertTo-Json -Depth 100 -Compress);
 			}
 		}
+		#endregion
+		#region FUNCTIONS TO ZIP DIRECTORIES AND UNZIP FILES
+		function Unzip($File, $Destination)
+		{
+			[System.IO.Compression.ZipFile]::ExtractToDirectory($File, $Destination);
+		}
+		function Zip($Directory, $Destination)
+		{
+			[System.IO.Compression.ZipFile]::CreateFromDirectory($Directory, $Destination);
+		}
+		#endregion
+		
 		switch ($PsCmdlet.ParameterSetName)
 		{
 			'Version'  {
@@ -233,13 +248,6 @@ function HCPosh
 						[Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
 						[string]$OutDir
 					)
-					begin
-					{
-						function Unzip($File, $Destination)
-						{
-							[System.IO.Compression.ZipFile]::ExtractToDirectory($File, $Destination);
-						}
-					}
 					process
 					{
 						#$OutDirFilePath = "$($OutDir)\metadata_raw.json"
@@ -1560,7 +1568,8 @@ function HCPosh
 						[Parameter(Mandatory = $True)]
 						[psobject]$DocsData,
 						[Parameter(Mandatory = $True)]
-						[string]$OutDir
+						[string]$OutDir,
+						[string]$OutZip
 					)
 					begin
 					{
@@ -2671,6 +2680,22 @@ function HCPosh
 						{
 							$Msg = "$(" " * 4)Unable to find valid public entities or An error occurred when trying to create the docs folder structure"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
 						}
+						if ($OutZip)
+						{
+							try
+							{
+								Zip -Directory $DocsDestinationPath -Destination $OutZip
+								if (Test-Path $DocsDestinationPath)
+								{
+									Remove-Item $DocsDestinationPath -Recurse -Force | Out-Null
+								}
+								$Msg = "$(" " * 4)Zipped file of directory --> $($OutZip)"; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
+							}
+							catch
+							{
+								$Msg = "$(" " * 4)Unable to zip the docs directory"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+							}
+						}
 						$Msg = "Success!`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
 						$Output = New-Object PSObject
 						$Output | Add-Member -Type NoteProperty -Name DocsData -Value $DocsData
@@ -3270,13 +3295,27 @@ function HCPosh
 				forEach ($DocsData in $DocsDataArr)
 				{
 					$NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
-					if ($OutVar)
+					if ($OutZip)
 					{
-						(Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Select-Object DocsData).DocsData
+						if ($OutVar)
+						{
+							(Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip ($NewOutDir + '_docs.zip') | Select-Object DocsData).DocsData
+						}
+						else
+						{
+							Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip ($NewOutDir + '_docs.zip') | Out-Null
+						}
 					}
 					else
 					{
-						Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+						if ($OutVar)
+						{
+							(Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Select-Object DocsData).DocsData
+						}
+						else
+						{
+							Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+						}
 					}
 				}
 			}
