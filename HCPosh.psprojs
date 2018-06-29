@@ -4,5 +4,7 @@
   <OpenFolders>
     <Folder>docs\static</Folder>
   </OpenFolders>
-  <OpenFiles />
+  <OpenFiles>
+    <File>HCPosh.psm1</File>
+  </OpenFiles>
 </ProjectState>

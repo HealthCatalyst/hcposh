@@ -142,9 +142,18 @@ function HCPosh
 		}
 		function Zip($Directory, $Destination)
 		{
-			[System.IO.Compression.ZipFile]::CreateFromDirectory($Directory, $Destination);
+			[System.IO.Compression.ZipFile]::CreateFromDirectory($Directory, $Destination, 'Optimal', $true);
 		}
 		#endregion
+		#region CREATE DIRECTORIES
+		function Create-Directory ($Dir)
+		{
+			If (!(Test-Path $Dir))
+			{
+				New-Item -ItemType Directory -Force -Path $Dir -ErrorAction Stop | Out-Null
+			}
+		}
+		#endregion						
 		
 		switch ($PsCmdlet.ParameterSetName)
 		{
@@ -2511,15 +2520,6 @@ function HCPosh
 							end
 							{
 								return $GvGraph -replace '{{ Subgraphs }}', $GvSubgraph -replace '{{ Edges }}', $GvEdges
-							}
-						}
-						#endregion						
-						#region CREATE DIRECTORIES
-						function Create-Directory ($Dir)
-						{
-							If (!(Test-Path $Dir))
-							{
-								New-Item -ItemType Directory -Force -Path $Dir -ErrorAction Stop | Out-Null
 							}
 						}
 						#endregion						
