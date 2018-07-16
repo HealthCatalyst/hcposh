@@ -93,6 +93,8 @@ function HCPosh
 		[switch]$NoSplit,
 		[Parameter(ParameterSetName = 'Docs', Mandatory = $True)]
 		[switch]$Docs,
+		[Parameter(ParameterSetName = 'Docs')]
+		[switch]$KeepFullLineage,
 		[Parameter(ParameterSetName = 'Diagrams', Mandatory = $True)]
 		[switch]$Diagrams,
 		[Parameter(ParameterSetName = 'Diagrams')]
@@ -2551,11 +2553,14 @@ function HCPosh
 							$Msg = "$(" " * 4)Adding erd diagram..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
 							$DocsData.Diagrams.Erd = (Create-Erd -DocsData $DocsData).Erd
 							
-							#Remove un-needed properties
-							if (($DocsData.Diagrams.Erd.PSobject.Properties.Name -match 'Data'))
+							if (!$KeepFullLineage)
 							{
-								$DocsData.Diagrams.Erd.PSObject.Properties.Remove('Data')
-							}
+								#Remove un-needed properties
+								if (($DocsData.Diagrams.Erd.PSobject.Properties.Name -match 'Data'))
+								{
+									$DocsData.Diagrams.Erd.PSObject.Properties.Remove('Data')
+								}
+							}							
 						}
 						catch
 						{
@@ -2570,19 +2575,22 @@ function HCPosh
 							$DocsData.Diagrams.DfdUpstream = (Create-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Upstream).Dfd
 							$DocsData.Diagrams.DfdDownstream = (Create-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Downstream).Dfd
 							
-							#Remove un-needed properties
-							if (($DocsData.Diagrams.Dfd.PSobject.Properties.Name -match 'Data'))
+							if (!$KeepFullLineage)
 							{
-								$DocsData.Diagrams.Dfd.PSObject.Properties.Remove('Data')
-							}
-							if (($DocsData.Diagrams.DfdUpstream.PSobject.Properties.Name -match 'Data'))
-							{
-								$DocsData.Diagrams.DfdUpstream.PSObject.Properties.Remove('Data')
-							}
-							if (($DocsData.Diagrams.DfdDownstream.PSobject.Properties.Name -match 'Data'))
-							{
-								$DocsData.Diagrams.DfdDownstream.PSObject.Properties.Remove('Data')
-							}
+								#Remove un-needed properties
+								if (($DocsData.Diagrams.Dfd.PSobject.Properties.Name -match 'Data'))
+								{
+									$DocsData.Diagrams.Dfd.PSObject.Properties.Remove('Data')
+								}
+								if (($DocsData.Diagrams.DfdUpstream.PSobject.Properties.Name -match 'Data'))
+								{
+									$DocsData.Diagrams.DfdUpstream.PSObject.Properties.Remove('Data')
+								}
+								if (($DocsData.Diagrams.DfdDownstream.PSobject.Properties.Name -match 'Data'))
+								{
+									$DocsData.Diagrams.DfdDownstream.PSObject.Properties.Remove('Data')
+								}
+							}							
 							
 							#ADD DFD DIAGRAM TO EVERY PUBLIC ENTITY
 							forEach ($PublicEntity in $DocsData.Entities | Where-Object $validPublicEntities)
@@ -2615,13 +2623,17 @@ function HCPosh
 								}
 							)
 						}
-						forEach ($Entity in $DocsData.Entities)
+						if (!$KeepFullLineage)
 						{
-							if (($Entity.PSobject.Properties.Name -match 'Lineage'))
+							forEach ($Entity in $DocsData.Entities)
 							{
-								$Entity.PSObject.Properties.Remove('Lineage')
+								if (($Entity.PSobject.Properties.Name -match 'Lineage'))
+								{
+									$Entity.PSObject.Properties.Remove('Lineage')
+								}
 							}
 						}
+						
 						#endregion						
 						#endregion
 						#region ADD COUNT DETAILS
