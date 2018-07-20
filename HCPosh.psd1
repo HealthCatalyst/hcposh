@@ -19,7 +19,7 @@
 	ModuleToProcess = 'HCPosh.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '2.0.5.0'
+	ModuleVersion = '2.0.6.0'
 	
 	# ID used to uniquely identify this module
 	GUID = 'a1461e74-a8ee-4ef9-b44a-c5c6644496d5'
