@@ -1158,9 +1158,9 @@ function HCPosh
 											If ($Entity.DataEntryData)
 											{
 												$OutFile = "$($SplitDirectory)\DataEntryData-$(Get-CleanFileName $Entity.DataEntryData.FullyQualifiedNM -RemoveSpace).csv"
-												if ($Entity.DataEntryData.Data)
+												if ($Entity.DataEntryData.Data_All)
 												{
-													$Entity.DataEntryData.Data | Export-Csv $OutFile -NoTypeInformation -Force
+													$Entity.DataEntryData.Data_All | Export-Csv $OutFile -NoTypeInformation -Force
 												}
 											}
 										}
@@ -1317,6 +1317,7 @@ function HCPosh
 										$DataEntryData = New-Object PSObject
 										$DataEntryData | Add-Member -Type NoteProperty -Name FullyQualifiedNM -Value $MetadataRaw.DataEntryData[$DataEntryDataIndex].FullyQualifiedNM
 										$DataEntryData | Add-Member -Type NoteProperty -Name Data -Value ($MetadataRaw.DataEntryData[$DataEntryDataIndex].Data | Select-Object -First 300)
+										$DataEntryData | Add-Member -Type NoteProperty -Name Data_All -Value ($MetadataRaw.DataEntryData[$DataEntryDataIndex].Data)
 										$DataEntryData | Add-Member -Type NoteProperty -Name Msg -Value $Msg
 										
 										$HCEntity | Add-Member -Type NoteProperty -Name DataEntryData -Value $DataEntryData
@@ -2672,6 +2673,18 @@ function HCPosh
 						$Counts | Add-Member -Type NoteProperty -Name Indexes -Value $Indexes;
 						
 						$DocsData | Add-Member -Type NoteProperty -Name Counts -Value $Counts;
+						#endregion
+						#region REMOVE DATA_ALL PROPERTY (UNECESSARY FOR DOCS)
+						foreach ($Entity in $DocsData.Entities)
+						{
+							if ($Entity.DataEntryData)
+							{
+								if ($Entity.DataEntryData.Data_All)
+								{
+									$Entity.DataEntryData.PSObject.Properties.Remove('Data_All')
+								}
+							}
+						}
 						#endregion
 						
 						$DocsData._hcposh.LastWriteTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.ffffff")

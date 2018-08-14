@@ -1,5 +1,5 @@
-﻿<Project Synchronized="False" SyncFilter="*.ps1;*.psm1;*.psd1;*.psxml;*.psf;*.pss;*.xml">
-  <Version>2.0</Version>
+﻿<Project Synchronized="False" SyncFilter="*.ps1;*.psm1;*.psd1;*.psxml;*.psf;*.pss;*.xml" AutoExportFunctions="False" AutoExportPS1XMLFiles="False">
+  <Version>2.1</Version>
   <FileID>a1461e74-a8ee-4ef9-b44a-c5c6644496d5</FileID>
   <ProjectType>1</ProjectType>
   <Folders>
@@ -14,8 +14,8 @@
   </Folders>
   <Files>
     <File Build="2">HCPosh.psd1</File>
-    <File Build="0">HCPosh.psm1</File>
-    <File Build="1" Shared="False" ReferenceFunction="Invoke-Test-Module_ps1">Test-Module.ps1</File>
+    <File Build="0" ExportFunctions="False">HCPosh.psm1</File>
+    <File Build="1" Shared="False" ReferenceFunction="Invoke-Test-Module_ps1" ExportFunctions="False">Test-Module.ps1</File>
     <File Build="2">en-US\HCPosh.psm1-Help.xml</File>
     <File Build="2">Microsoft.SqlServer.TransactSql.ScriptDom.dll</File>
     <File Build="2">ColumnExtractor.dll</File>

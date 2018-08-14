@@ -5,6 +5,6 @@
     <Folder>docs\static</Folder>
   </OpenFolders>
   <OpenFiles>
-    <File>HCPosh.psd1</File>
+    <File>HCPosh.psm1</File>
   </OpenFiles>
 </ProjectState>
