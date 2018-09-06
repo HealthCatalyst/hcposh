@@ -160,7 +160,7 @@ function HCPosh
 		switch ($PsCmdlet.ParameterSetName)
 		{
 			'Version'  {
-				"HCPosh v$((Get-Module HCPosh -ListAvailable).Version -join '.')"
+				"HCPosh v$((Get-Module HCPosh -ListAvailable)[0].Version -join '.')"
 				if (!$Version)
 				{
 					Get-Help HCPosh
@@ -226,7 +226,7 @@ function HCPosh
 					{
 						try
 						{
-							$Graphviz = ".""$(Split-Path (Get-Module -ListAvailable HCPosh).path -Parent)\Graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
+							$Graphviz = ".""$(Split-Path (Get-Module -ListAvailable HCPosh)[0].path -Parent)\Graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
 						}
 						catch
 						{
@@ -2693,7 +2693,7 @@ function HCPosh
 						$DataDir = "$($OutDir)\static\data"; Create-Directory -Dir $DataDir;
 						
 						#Files
-						$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh).path -Parent)\docs\*";
+						$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh)[0].path -Parent)\docs\*";
 						$DocsDestinationPath = $OutDir;
 						$DataFilePath = "$($DataDir)\dataMart.js";
 						try
