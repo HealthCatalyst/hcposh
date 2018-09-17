@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="Layer_1"
+   data-name="Layer 1"
+   viewBox="0 0 16 16"
+   version="1.1"
+   sodipodi:docname="dropdown-icon-entity-protected.svg"
+   width="16"
+   height="16"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+  <metadata
+     id="metadata2060">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>protection</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     id="namedview2058"
+     showgrid="false"
+     inkscape:zoom="11.8"
+     inkscape:cx="10"
+     inkscape:cy="10"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1" />
+  <defs
+     id="defs2047">
+    <style
+       id="style2045">.cls-1{fill:#555;}.cls-2{fill:#fff;}</style>
+  </defs>
+  <title
+     id="title2049">protection</title>
+  <path
+     class="cls-1"
+     d="m 14.050848,2.118644 v 12 H 2.0508477 v -12 H 14.050848 m 0,-1 H 2.0508477 a 1,1 0 0 0 -1,1 v 12 a 1,1 0 0 0 1,1 H 14.050848 a 1,1 0 0 0 1,-1 v -12 a 1,1 0 0 0 -1,-1 z"
+     id="path846"
+     inkscape:connector-curvature="0"
+     style="fill:#555555" />
+  <line
+     class="cls-2"
+     x1="1.4308467"
+     y1="5.3886437"
+     x2="14.550848"
+     y2="5.3886437"
+     id="line848"
+     style="fill:none;stroke:#555555;stroke-miterlimit:10" />
+  <line
+     class="cls-2"
+     x1="1.5508475"
+     y1="8.4586449"
+     x2="14.860846"
+     y2="8.4586449"
+     id="line850"
+     style="fill:none;stroke:#555555;stroke-miterlimit:10" />
+  <line
+     class="cls-2"
+     x1="10.220848"
+     y1="14.828645"
+     x2="10.220848"
+     y2="5.4286437"
+     id="line852"
+     style="fill:none;stroke:#555555;stroke-miterlimit:10" />
+  <line
+     class="cls-2"
+     x1="5.8808479"
+     y1="14.828645"
+     x2="5.8808479"
+     y2="5.4286437"
+     id="line854"
+     style="fill:none;stroke:#555555;stroke-miterlimit:10" />
+  <line
+     class="cls-2"
+     x1="1.6808467"
+     y1="11.538645"
+     x2="14.610846"
+     y2="11.538645"
+     id="line856"
+     style="fill:none;stroke:#555555;stroke-miterlimit:10" />
+  <rect
+     class="cls-1"
+     x="1.4908462"
+     y="1.6486441"
+     width="13.06"
+     height="3.74"
+     id="rect858"
+     style="fill:#555555" />
+  <path
+     class="cls-1"
+     d="m 11.525424,7.8025765 a 1.2222,1.2222 0 0 1 1.2159,1.2033 v 0.9828 h -2.4381 v -0.9828 a 1.2222,1.2222 0 0 1 1.2222,-1.2033 m 0,-0.9639 a 2.1609,2.1609 0 0 0 -2.1609001,2.1546 v 0 1.3104005 h 4.3344001 v -1.3104005 0 a 2.1609,2.1609 0 0 0 -2.1735,-2.1546 z"
+     id="path2051"
+     style="fill:#006d9a;fill-opacity:1;stroke-width:0.63"
+     inkscape:connector-curvature="0" />
+  <rect
+     class="cls-1"
+     x="7.4304228"
+     y="9.9697762"
+     width="8.1900005"
+     height="5.6700001"
+     rx="0.94499993"
+     ry="0.94499993"
+     id="rect2053"
+     style="fill:#006d9a;fill-opacity:1;stroke-width:0.63" />
+  <path
+     class="cls-2"
+     d="m 11.922324,12.880376 v 1.2978 h -0.7938 v -1.2978 a 0.7686,0.7686 0 0 1 -0.3843,-0.6615 0.7812,0.7812 0 0 1 1.5624,0 0.7686,0.7686 0 0 1 -0.3843,0.6615 z"
+     id="path2055"
+     inkscape:connector-curvature="0"
+     style="fill:#ffffff;stroke-width:0.63" />
+</svg>
