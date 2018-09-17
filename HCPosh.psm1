@@ -2596,12 +2596,15 @@ function HCPosh
 							#ADD DFD DIAGRAM TO EVERY PUBLIC ENTITY
 							forEach ($PublicEntity in $DocsData.Entities | Where-Object $validPublicEntities)
 							{
-								$PublicEntity | Add-Member -Type NoteProperty -Name Diagrams -Value (New-Object PSObject -Property @{ Dfd = $Null; DfdUpstream = $Null; DfdDownstream = $Null })
-								$Msg = "$(" " * 4)Adding dfd diagrams...$($PublicEntity.FullyQualifiedNames.Table)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-								$PublicEntity.Diagrams.Dfd = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Both).Dfd
-								$PublicEntity.Diagrams.DfdUpstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Upstream).Dfd
-								$PublicEntity.Diagrams.DfdDownstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Downstream).Dfd
-							}													
+								if ($PublicEntity.SourcedByEntities)
+								{
+									$PublicEntity | Add-Member -Type NoteProperty -Name Diagrams -Value (New-Object PSObject -Property @{ Dfd = $Null; DfdUpstream = $Null; DfdDownstream = $Null })
+									$Msg = "$(" " * 4)Adding dfd diagrams...$($PublicEntity.FullyQualifiedNames.Table)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
+									$PublicEntity.Diagrams.Dfd = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Both).Dfd
+									$PublicEntity.Diagrams.DfdDownstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Downstream).Dfd
+									$PublicEntity.Diagrams.DfdUpstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Upstream).Dfd
+								}
+							}
 						}
 						catch
 						{
