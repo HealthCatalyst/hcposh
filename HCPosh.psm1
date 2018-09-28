@@ -582,6 +582,11 @@ function HCPosh
 											$HCEntity.LastModifiedTimestamp = $Entity.LastModifiedTimestamp
 											$HCEntity.IsPersisted = $Entity.IsPersisted
 											$HCEntity.IsPublic = $Entity.IsPublic
+											$IsUniversal = $Entity.AttributeValues | Where-Object AttributeName -eq 'IsUniversal'
+											if ($IsUniversal)
+											{
+												$HCEntity | Add-Member -Type NoteProperty -Name IsUniversal -Value $([System.Convert]::ToBoolean($IsUniversal.TextValue))
+											}
 											#endregion
 											#region PROTECTION PROPS
 											$IsProtected = $Entity.AttributeValues | Where-Object AttributeName -eq 'IsProtected'
@@ -1226,6 +1231,18 @@ function HCPosh
 							$MetadataNew._hcposh<#extension#> = $MetadataRaw._hcposh
 							#endregion
 							#region ENTITIES
+							
+							#Grab bindings that only have references to entities
+							$RefBindings = New-Object PSObject;
+							Foreach ($RefBinding in $MetadataRaw.Bindings | Where-Object { $_.DestinationEntity.'$Ref' })
+							{
+								if (!$RefBindings."$($RefBinding.DestinationEntity.'$Ref')")
+								{
+									$RefBindings | Add-Member -Type NoteProperty -Name "$($RefBinding.DestinationEntity.'$Ref')" -Value @()
+								}
+								$RefBindings."$($RefBinding.DestinationEntity.'$Ref')" += $RefBinding
+							}
+							
 							Foreach ($Binding in $MetadataRaw.Bindings | Where-Object { $_.ContentId })
 							{
 								$Bindings = @()
@@ -1238,6 +1255,10 @@ function HCPosh
 								
 								foreach ($Entity in $Binding.DestinationEntity | Where-Object { $_.ContentId })
 								{
+									if ($RefBindings."$($Entity.'$id')")
+									{
+										$Bindings += $RefBindings."$($Entity.'$id')";
+									}
 									$MetadataNew.Entities += Create-HCEntityObject -Entity $Entity -Bindings $Bindings
 								}
 							}
@@ -1355,6 +1376,12 @@ function HCPosh
 										{
 											$HCSourcedByEntity.TableOrigin = 'Local'
 											$HCSourcedByEntity.SourceContentId = ($MetadataNew.Entities | Where-Object { (($_.FullyQualifiedNames.Table -eq $HCSourcedByEntity.FullyQualifiedNM) -or ($_.FullyQualifiedNames.View -eq $HCSourcedByEntity.FullyQualifiedNM)) -and $_.ClassificationCode -ne 'OverridingExtensionView' }).ContentId
+											
+											#if it's a universal entity then it originates outside of this datamart
+											if ($MetadataNew.Entities[$MetadataNew.Entities.ContentId.IndexOf($HCSourcedByEntity.SourceContentId)].IsUniversal)
+											{
+												$HCSourcedByEntity.TableOrigin = 'External'
+											}
 										}
 										#else table must have originated externally
 										else
@@ -1655,7 +1682,7 @@ function HCPosh
 								}
 								return $IsConfig
 							}
-							if ($Node.ContentId) #Local
+							if ($Node.ContentId -and !(Get-Entity -ContentId $Node.ContentId).IsUniversal) #Local
 							{
 								$Entity = Get-Entity -ContentId $Node.ContentId
 								$Groups.Group1 = 'Local'
@@ -1716,20 +1743,20 @@ function HCPosh
 								$Groups.Group3 = $Attributes.DatabaseNM
 								
 								#except for Azure SQLDB where they put the DB name in the schema
-								if ($Attributes.SchemaNM -match 'SAM__')
-								{
-									$Groups.Group2 = 'SubjectArea'
-									$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
-								}
-								elseif ($Attributes.SchemaNM -match 'Shared__')
-								{
-									$Groups.Group2 = 'Shared'
-									$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
-								}
-								elseif ($Attributes.SchemaNM.LastIndexOf('__') -ne -1)
-								{
-									$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
-								}
+								#if ($Attributes.SchemaNM -match 'SAM__')
+								#{
+								#	$Groups.Group2 = 'SubjectArea'
+								#	$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
+								#}
+								#elseif ($Attributes.SchemaNM -match 'Shared__')
+								#{
+								#	$Groups.Group2 = 'Shared'
+								#	$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
+								#}
+								#elseif ($Attributes.SchemaNM.LastIndexOf('__') -ne -1)
+								#{
+								#	$Groups.Group3 = $Attributes.SchemaNM.Substring(0, $Attributes.SchemaNM.LastIndexOf('__'))
+								#}
 							}
 							$Groups.GroupId = "$($Groups.Group1)_$($Groups.Group2)_$($Groups.Group3)"
 							return $Groups
