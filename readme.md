@@ -12,9 +12,8 @@ Posh is short for "PowerShell", but is also an old sailor phrase of "Portside ou
 * Integration of Graphviz software for ERD and Data flow diagram generation (pdf, png, and svg)
 
 ## INSTALLATION
-1. Download the HCPosh.msi in the build directory of this repository.
-2. Double-click on the HCPosh.msi file to initiate the installation.
-3. HCPosh requires you to change the execution policy from the default 'Restricted' to 'RemoteSigned':
+1. HCPosh has been uploaded to PowerShell Gallery and can be installed by running the command `Install-Module HCPosh`.
+2. HCPosh requires you to change the execution policy from the default 'Restricted' to 'RemoteSigned':
     * Go to the Start Menu, Type in PowerShell, Right-Click and 'Run as Administrator'.
     * At the prompt, type in
     ```
