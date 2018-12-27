@@ -148,7 +148,7 @@ function HCPosh
 		}
 		#endregion
 		#region CREATE DIRECTORIES
-		function Create-Directory ($Dir)
+		function New-Directory ($Dir)
 		{
 			If (!(Test-Path $Dir))
 			{
@@ -167,17 +167,14 @@ function HCPosh
 				}
 			}
 			{ 'SqlParser' -or 'Data' -or 'Impact' } {
-				function Parse-Sql
+				function Split-Sql
 				{
 					[CmdletBinding()]
 					param (
 						[Parameter(Mandatory = $True)]
 						[string]$Query,
-						[Parameter(Mandatory = $True)]
 						[bool]$Log = $False,
-						[Parameter(Mandatory = $True)]
 						[bool]$SelectStar = $False,
-						[Parameter(Mandatory = $True)]
 						[bool]$Brackets = $False
 					)
 					begin
@@ -436,7 +433,7 @@ function HCPosh
 						begin
 						{
 							#region FUNCTIONS FOR DATAMART OBJECT CREATION
-							function CreateEmpty-HCDatamartObject
+							function New-HCEmptyDatamartObject
 							{
 								$Datamart = New-Object PSObject
 								$Datamart | Add-Member -Type NoteProperty -Name ContentId -Value $Null
@@ -458,7 +455,7 @@ function HCPosh
 								
 								return $Datamart
 							}
-							function CreateEmpty-HCEntityObject
+							function New-HCEmptyEntityObject
 							{
 								$Entity = New-Object PSObject
 								$Entity | Add-Member -Type NoteProperty -Name ContentId -Value $Null
@@ -482,7 +479,7 @@ function HCPosh
 								
 								return $Entity
 							}
-							function CreateEmpty-HCIndexObject
+							function New-HCEmptyIndexObject
 							{
 								$Index = New-Object PSObject
 								$Index | Add-Member -Type NoteProperty -Name IndexName -Value $Null
@@ -492,7 +489,7 @@ function HCPosh
 								
 								return $Index
 							}
-							function CreateEmpty-HCIndexColumnObject
+							function New-HCEmptyIndexColumnObject
 							{
 								$IndexColumn = New-Object PSObject
 								$IndexColumn | Add-Member -Type NoteProperty -Name Ordinal -Value $Null
@@ -502,7 +499,7 @@ function HCPosh
 								
 								return $IndexColumn
 							}
-							function CreateEmpty-HCColumnObject
+							function New-HCEmptyColumnObject
 							{
 								$Column = New-Object PSObject
 								$Column | Add-Member -Type NoteProperty -Name ContentId -Value $Null
@@ -520,7 +517,7 @@ function HCPosh
 								
 								return $Column
 							}
-							function CreateEmpty-HCBindingObject
+							function New-HCEmptyBindingObject
 							{
 								$Binding = New-Object PSObject
 								$Binding | Add-Member -Type NoteProperty -Name ContentId -Value $Null
@@ -535,7 +532,7 @@ function HCPosh
 								
 								return $Binding
 							}
-							function CreateEmpty-HCFullyQualifiedNameObject
+							function New-HCEmptyFullyQualifiedNameObject
 							{
 								$FullyQualifiedName = New-Object PSObject
 								$FullyQualifiedName<#extension#> | Add-Member -Type NoteProperty -Name Table -Value $Null
@@ -543,7 +540,7 @@ function HCPosh
 								
 								return $FullyQualifiedName
 							}
-							function CreateEmpty-HCIncrementalConfigurationObject
+							function New-HCEmptyIncrementalConfigurationObject
 							{
 								$IncrementalConfiguration = New-Object PSObject
 								$IncrementalConfiguration | Add-Member -Type NoteProperty -Name IncrementalColumnName -Value $Null
@@ -556,7 +553,7 @@ function HCPosh
 								
 								return $IncrementalConfiguration
 							}
-							function CreateEmpty-HCSourcedByEntityObject
+							function New-HCEmptySourcedByEntityObject
 							{
 								$SourcedByEntity = New-Object PSObject
 								#$SourcedByEntity<#extension#> | Add-Member -Type NoteProperty -Name ServerNM -Value $Null
@@ -572,7 +569,7 @@ function HCPosh
 								
 								return $SourcedByEntity
 							}
-							function CreateEmpty-HCSourcedByColumnObject
+							function New-HCEmptySourcedByColumnObject
 							{
 								$SourcedByColumn = New-Object PSObject
 								$SourcedByColumn<#extension#> | Add-Member -Type NoteProperty -Name ColumnNM -Value $Null
@@ -582,7 +579,7 @@ function HCPosh
 								
 								return $SourcedByColumn
 							}
-							function CreateEmpty-HCSourcedByPossibleColumnObject
+							function New-HCEmptySourcedByPossibleColumnObject
 							{
 								$SourcedByPossibleColumn = New-Object PSObject
 								$SourcedByPossibleColumn<#extension#> | Add-Member -Type NoteProperty -Name ColumnNM -Value $Null
@@ -590,7 +587,7 @@ function HCPosh
 								
 								return $SourcedByPossibleColumn
 							}
-							function CreateEmpty-HCExtensionContentIdsObject
+							function New-HCEmptyExtensionContentIdsObject
 							{
 								$ExtensionContentIds = New-Object PSObject
 								$ExtensionContentIds | Add-Member -Type NoteProperty -Name CoreEntity -Value $Null
@@ -599,7 +596,7 @@ function HCPosh
 								
 								return $ExtensionContentIds
 							}
-							function Create-HCEntityObject
+							function New-HCEntityObject
 							{
 								[CmdletBinding()]
 								Param (
@@ -613,7 +610,7 @@ function HCPosh
 								begin
 								{
 									$HCEntities = @()
-									function Inner-HCEntityObject
+									function New-HCInnerEntityObject
 									{
 										[CmdletBinding()]
 										Param (
@@ -627,7 +624,7 @@ function HCPosh
 										)
 										begin
 										{
-											$HCEntity = CreateEmpty-HCEntityObject
+											$HCEntity = New-HCEmptyEntityObject
 										}
 										Process
 										{
@@ -658,7 +655,7 @@ function HCPosh
 											}
 											#endregion
 											#region FULLYQUALIFIEDNAME PROPS
-											$HCFullyQualifiedName = CreateEmpty-HCFullyQualifiedNameObject
+											$HCFullyQualifiedName = New-HCEmptyFullyQualifiedNameObject
 											$HCFullyQualifiedName.Table = "$($Entity.DatabaseNM).$($Entity.SchemaNM).$($Entity.TableNM)"
 											$HCFullyQualifiedName.View = "$($Entity.DatabaseNM).$($Entity.SchemaNM).$($Entity.ViewName)"
 											
@@ -667,7 +664,7 @@ function HCPosh
 											#region COLUMN PROPS
 											foreach ($Column in $Entity.Columns)
 											{
-												$HCColumn = CreateEmpty-HCColumnObject
+												$HCColumn = New-HCEmptyColumnObject
 												$HCColumn.ContentId = $Column.ContentId
 												$HCColumn.ColumnNM = $Column.ColumnNM
 												$HCColumn.DataSensitivityCD = $Column.DataSensitivityCD
@@ -688,14 +685,14 @@ function HCPosh
 											#region INDEX PROPS
 											foreach ($Index in $Entity.Indexes)
 											{
-												$HCIndex = CreateEmpty-HCIndexObject
+												$HCIndex = New-HCEmptyIndexObject
 												$HCIndex.IndexName = $Index.IndexName
 												$HCIndex.IndexTypeCode = $Index.IndexTypeCode
 												$HCIndex.IsActive = $Index.IsActive
 												
 												foreach ($IndexColumn in $Index.IndexColumns)
 												{
-													$HCIndexColumn = CreateEmpty-HCIndexColumnObject
+													$HCIndexColumn = New-HCEmptyIndexColumnObject
 													$HCIndexColumn.Ordinal = $IndexColumn.Ordinal
 													$HCIndexColumn.ColumnNM = ($Entity.Columns | Where-Object { $_.'$Id' -eq $IndexColumn.Column.'$Ref' }).ColumnNM
 													$HCIndexColumn.IsCovering = $IndexColumn.IsCovering
@@ -710,7 +707,7 @@ function HCPosh
 											#region BINDING PROPS
 											foreach ($Binding in $Bindings)
 											{
-												$HCBinding = CreateEmpty-HCBindingObject
+												$HCBinding = New-HCEmptyBindingObject
 												$HCBinding.ContentId = $Binding.ContentId
 												$HCBinding.BindingName = $Binding.BindingName
 												$HCBinding.BindingNameNoSpaces = (Get-CleanFileName -Name $Binding.BindingName -RemoveSpace)
@@ -745,7 +742,7 @@ function HCPosh
 														
 														foreach ($IncrementalConfiguration in $Binding.IncrementalConfigurations)
 														{
-															$HCIncrementalConfiguration = CreateEmpty-HCIncrementalConfigurationObject
+															$HCIncrementalConfiguration = New-HCEmptyIncrementalConfigurationObject
 															$HCIncrementalConfiguration.IncrementalColumnName = $IncrementalConfiguration.IncrementalColumnName
 															$HCIncrementalConfiguration.OverlapNumber = $IncrementalConfiguration.OverlapNumber
 															$HCIncrementalConfiguration.OverlapType = $IncrementalConfiguration.OverlapType
@@ -762,7 +759,7 @@ function HCPosh
 											}
 											#endregion        
 											#region EXTENSION PROPS
-											$ExtensionContentIds = CreateEmpty-HCExtensionContentIdsObject
+											$ExtensionContentIds = New-HCEmptyExtensionContentIdsObject
 											if ($Entity.ChildEntityRelationships -or $Entity.ParentEntityRelationships)
 											{
 												$HCEntity | Add-Member -Type NoteProperty -Name IsExtended -Value $true -Force
@@ -781,7 +778,7 @@ function HCPosh
 													{
 														$ExtensionContentIds."$($Ext3.ParentRoleName)" = $Ext3.ParentEntity.ContentId
 													}
-													Inner-HCEntityObject -Entity $Ext2 -Bindings $Ext2.FedByBindings
+													New-HCInnerEntityObject -Entity $Ext2 -Bindings $Ext2.FedByBindings
 												}
 												$HCEntity | Add-Member -Type NoteProperty -Name ExtensionContentIds -Value $ExtensionContentIds -Force
 											}
@@ -798,7 +795,7 @@ function HCPosh
 													{
 														$ExtensionContentIds."$($Ext3.ChildRoleName)" = $Ext3.ChildEntity.ContentId
 													}
-													Inner-HCEntityObject -Entity $Ext2 -Bindings $Ext2.FedByBindings
+													New-HCInnerEntityObject -Entity $Ext2 -Bindings $Ext2.FedByBindings
 												}
 												$HCEntity | Add-Member -Type NoteProperty -Name ExtensionContentIds -Value $ExtensionContentIds -Force
 											}
@@ -824,7 +821,7 @@ function HCPosh
 								}
 								process
 								{
-									$HCEntities += Inner-HCEntityObject -Entity $Entity -Bindings $Bindings -ClassificationCode $ClassificationCode
+									$HCEntities += New-HCInnerEntityObject -Entity $Entity -Bindings $Bindings -ClassificationCode $ClassificationCode
 								}
 								end
 								{
@@ -833,7 +830,7 @@ function HCPosh
 							}
 							#endregion							
 							#region FUNCTIONS FOR SPLITTING OBJECT INTO A BUNCH OF FILES
-							function Create-Directory
+							function New-Directory
 							{
 								param
 								(
@@ -856,7 +853,7 @@ function HCPosh
 									[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = "Normal")]
 									[Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ParameterSetName = "Replace")]
 									[String[]]$Name,
-									[Parameter(Mandatory = $True, Position = 1, ParameterSetName = "Replace")]
+									[Parameter(Position = 1, ParameterSetName = "Replace")]
 									[String]$Replacement = '-',
 									[Parameter(Position = 2, ParameterSetName = "Replace")]
 									[Alias("RO")]
@@ -982,7 +979,7 @@ function HCPosh
 									}
 								}
 							}
-							function CreateEmpty-Property
+							function New-EmptyProperty
 							{
 								$Property = New-Object PSObject
 								$Property | Add-Member -Type NoteProperty -Name Name -Value $Null
@@ -1005,7 +1002,7 @@ function HCPosh
 									try
 									{
 										#create base directory
-										Create-Directory -Directory $SplitDirectory
+										New-Directory -Directory $SplitDirectory
 										
 										#region CREATE DATAMART FILES
 										$Exclusions = @('DatamartNoSpacesNM', 'Entities', 'SourcedByEntities', '_hcposh', 'MaxLastModifiedTimestamp')
@@ -1013,7 +1010,7 @@ function HCPosh
 										$Props = $MetadataNew.psobject.properties.name | Where-Object { $MetadataNew.$_ }
 										forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 										{
-											$OutObj = CreateEmpty-Property
+											$OutObj = New-EmptyProperty
 											$OutObj.Name = $MetadataNew.DatamartNM
 											$OutObj.Property = $Prop
 											$OutObj.Value = $MetadataNew."$($OutObj.Property)"
@@ -1060,7 +1057,7 @@ function HCPosh
 												$Props = $Entity.psobject.properties.name | Where-Object { $_ }
 												forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 												{
-													$OutObj = CreateEmpty-Property
+													$OutObj = New-EmptyProperty
 													$OutObj.Name = $Entity.FullyQualifiedNames.Table
 													$OutObj.Property = $Prop
 													$OutObj.Value = $($Entity."$($OutObj.Property)" -replace "`r`n", "")
@@ -1089,7 +1086,7 @@ function HCPosh
 												$Props = $Binding.psobject.properties.name | Where-Object { $_ }
 												forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 												{
-													$OutObj = CreateEmpty-Property
+													$OutObj = New-EmptyProperty
 													$OutObj.Name = $Binding.BindingName
 													$OutObj.Property = $Prop
 													$OutObj.Value = $($Binding."$($OutObj.Property)" -replace "`r`n", "")
@@ -1127,7 +1124,7 @@ function HCPosh
 													$Props = $Column.psobject.properties.name | Where-Object { $_ }
 													forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 													{
-														$OutObj = CreateEmpty-Property
+														$OutObj = New-EmptyProperty
 														$OutObj.Name = "$($Entity.FullyQualifiedNames.Table).$($Column.ColumnNM)"
 														$OutObj.Property = $Prop
 														$OutObj.Value = $($Column."$($OutObj.Property)" -replace "`r`n", "")
@@ -1159,7 +1156,7 @@ function HCPosh
 													$Props = $Index.psobject.properties.name | Where-Object { $_ }
 													forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 													{
-														$OutObj = CreateEmpty-Property
+														$OutObj = New-EmptyProperty
 														$OutObj.Name = "$($Entity.FullyQualifiedNames.Table).$($Index.IndexName)"
 														$OutObj.Property = $Prop
 														if ($Prop -eq 'IndexColumns')
@@ -1198,11 +1195,11 @@ function HCPosh
 													$Props = $Increment.psobject.properties.name | Where-Object { $_ }
 													forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions })
 													{
-														$OutObj = CreateEmpty-Property
+														$OutObj = New-EmptyProperty
 														$OutObj.Name = $Binding.BindingName
 														$OutObj.Property = $Prop
 														$OutObj.Value = $($Increment."$($OutObj.Property)" -replace "`r`n", "")
-														if ($OutObj.Value -ne $null -and $OutObj.Value -ne "") { $Out += $OutObj | Sort-Object { $_.Property, $_.Value } }
+														if ($null -ne $OutObj.Value -and $OutObj.Value -ne "") { $Out += $OutObj | Sort-Object { $_.Property, $_.Value } }
 													}
 												}
 											}
@@ -1239,7 +1236,7 @@ function HCPosh
 											{
 												forEach ($Issue in $Binding.SourcedByEntities.SourcedByPossibleColumns)
 												{
-													$OutObj = CreateEmpty-Property
+													$OutObj = New-EmptyProperty
 													$OutObj.Name = $Binding.BindingName
 													$OutObj.Property = "Missing Alias - Unable To Parse"
 													$OutObj.Value = $Issue.FullyQualifiedNM
@@ -1274,7 +1271,7 @@ function HCPosh
 							$SplitDirectory = "$($OutDir)\Datamart"
 							
 							$Msg = "$(" " * 4)Creating new $(($MetadataRaw.DatamartNM).ToLower()) object..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-							$MetadataNew = CreateEmpty-HCDatamartObject
+							$MetadataNew = New-HCEmptyDatamartObject
 							
 							#region DATAMART
 							$MetadataNew.ContentId = $MetadataRaw.ContentId
@@ -1320,7 +1317,7 @@ function HCPosh
 									{
 										$Bindings += $RefBindings."$($Entity.'$id')";
 									}
-									$MetadataNew.Entities += Create-HCEntityObject -Entity $Entity -Bindings $Bindings
+									$MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings
 								}
 							}
 							
@@ -1332,7 +1329,7 @@ function HCPosh
 								{
 									$Bindings += $Binding
 								}
-								$MetadataNew.Entities += Create-HCEntityObject -Entity $Entity -Bindings $Bindings
+								$MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings
 							}
 							
 							foreach ($Entity in $MetadataRaw.Tables | Where-Object { $_.ContentId })
@@ -1342,7 +1339,7 @@ function HCPosh
 								{
 									$Bindings += $Binding
 								}
-								$MetadataNew.Entities += Create-HCEntityObject -Entity $Entity -Bindings $Bindings -ClassificationCode 'DataEntry'
+								$MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings -ClassificationCode 'DataEntry'
 							}
 							
 							
@@ -1372,8 +1369,8 @@ function HCPosh
 							
 							$MetadataNew.MaxLastModifiedTimestamp<#extension#> = ($MetadataNew.Entities.LastModifiedTimestamp | Measure -Maximum).Maximum
 							
-							$Msg = "$(" " * 8)$(($MetadataNew.Entities | Measure).Count) - Entities"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
-							$Msg = "$(" " * 8)$(($MetadataNew.Entities.Bindings | Measure).Count) - Bindings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+							$Msg = "$(" " * 8)$(($MetadataNew.Entities | Measure-Object).Count) - Entities"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+							$Msg = "$(" " * 8)$(($MetadataNew.Entities.Bindings | Measure-Object).Count) - Bindings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 							#endregion
 							
 							#region ADD DATA ENTRY DATA
@@ -1413,11 +1410,11 @@ function HCPosh
 							{
 								foreach ($HCBinding in $HCEntity.Bindings)
 								{
-									$SourcedByEntities = $(Parse-Sql -Query $HCBinding.UserDefinedSQL -Log $False -SelectStar $False -Brackets $False)
+									$SourcedByEntities = $(Split-Sql -Query $HCBinding.UserDefinedSQL -Log $False -SelectStar $False -Brackets $False)
 									
 									foreach ($SourcedByEntity in $SourcedByEntities | Where-Object { $_.DatabaseNM -and $_.SchemaNM -and $_.TableNM })
 									{
-										$HCSourcedByEntity = CreateEmpty-HCSourcedByEntityObject
+										$HCSourcedByEntity = New-HCEmptySourcedByEntityObject
 										#$HCSourcedByEntity.ServerNM = $SourcedByEntity.ServerNM
 										$HCSourcedByEntity.DatabaseNM = $SourcedByEntity.DatabaseNM
 										$HCSourcedByEntity.SchemaNM = $SourcedByEntity.SchemaNM
@@ -1452,7 +1449,7 @@ function HCPosh
 										
 										foreach ($SourcedByColumn in $SourcedByEntity.Columns)
 										{
-											$HCSourcedByColumn = CreateEmpty-HCSourcedByColumnObject
+											$HCSourcedByColumn = New-HCEmptySourcedByColumnObject
 											$HCSourcedByColumn.ColumnNM = $SourcedByColumn.ColumnNM
 											$HCSourcedByColumn.FullyQualifiedNM = $SourcedByColumn.FullyQualifiedNM
 											$HCSourcedByColumn.AliasNM = $SourcedByColumn.AliasNM
@@ -1467,7 +1464,7 @@ function HCPosh
 											$HCSourcedByEntity | Add-Member -Type NoteProperty -Name SourcedByPossibleColumns -Value @()
 											foreach ($SourcedByPossibleColumn in $SourcedByEntity.PossibleColumns)
 											{
-												$HCSourcedByPossibleColumn = CreateEmpty-HCSourcedByPossibleColumnObject
+												$HCSourcedByPossibleColumn = New-HCEmptySourcedByPossibleColumnObject
 												$HCSourcedByPossibleColumn.ColumnNM = $SourcedByPossibleColumn.ColumnNM
 												$HCSourcedByPossibleColumn.FullyQualifiedNM = "$($HCSourcedByEntity.FullyQualifiedNM).$($HCSourcedByPossibleColumn.ColumnNM)"
 												
@@ -1483,7 +1480,7 @@ function HCPosh
 								$HCEntityGroups = $HCEntity.Bindings.SourcedByEntities | Group-Object -Property FullyQualifiedNM
 								foreach ($HCEntityGroup in $HCEntityGroups)
 								{
-									$HCSourcedByEntity = CreateEmpty-HCSourcedByEntityObject
+									$HCSourcedByEntity = New-HCEmptySourcedByEntityObject
 									#$HCSourcedByEntity.ServerNM = $HCEntityGroup.Group[0].ServerNM
 									$HCSourcedByEntity.DatabaseNM = $HCEntityGroup.Group[0].DatabaseNM
 									$HCSourcedByEntity.SchemaNM = $HCEntityGroup.Group[0].SchemaNM
@@ -1491,17 +1488,17 @@ function HCPosh
 									$HCSourcedByEntity.FullyQualifiedNM = $HCEntityGroup.Group[0].FullyQualifiedNM
 									$HCSourcedByEntity.TableOrigin = $HCEntityGroup.Group[0].TableOrigin
 									$HCSourcedByEntity.SourceContentId = $HCEntityGroup.Group[0].SourceContentId
-									$HCSourcedByEntity.BindingCount = ($HCEntityGroup.Group.BindingCount | Measure -Sum).Sum
+									$HCSourcedByEntity.BindingCount = ($HCEntityGroup.Group.BindingCount | Measure-Object -Sum).Sum
 									$HCSourcedByEntity.PSObject.Properties.Remove('AliasNM')
 									
 									
 									$ColumnGroups = $HCEntityGroup.Group.SourcedByColumns | Group-Object ColumnNM
 									foreach ($ColumnGroup in $ColumnGroups)
 									{
-										$HCSourcedByColumn = CreateEmpty-HCSourcedByColumnObject
+										$HCSourcedByColumn = New-HCEmptySourcedByColumnObject
 										$HCSourcedByColumn.ColumnNM = $ColumnGroup.Group[0].ColumnNM
 										$HCSourcedByColumn.FullyQualifiedNM = $ColumnGroup.Group[0].FullyQualifiedNM
-										$HCSourcedByColumn.BindingCount = ($ColumnGroup.Group.BindingCount | Measure -Sum).Sum
+										$HCSourcedByColumn.BindingCount = ($ColumnGroup.Group.BindingCount | Measure-Object -Sum).Sum
 										$HCSourcedByColumn.PSObject.Properties.Remove('AliasNM')
 										
 										$HCSourcedByEntity.SourcedByColumns += $HCSourcedByColumn
@@ -1529,7 +1526,7 @@ function HCPosh
 								
 								#Add the Columns from the ExtensionEntity to the CoreEntity
 								$ColumnsExt = $ExtensionEntity.Columns | Where-Object { $_.IsSystemColumnValue -eq $false -and $_.IsPrimaryKeyValue -eq $false };
-								$MaxOrdinal = ($HCEntity.Columns.Ordinal | measure -Maximum).Maximum + 1;
+								$MaxOrdinal = ($HCEntity.Columns.Ordinal | Measure-Object -Maximum).Maximum + 1;
 								foreach ($ColumnExt in $ColumnsExt | Sort-Object Ordinal)
 								{
 									$ColumnExt | Add-Member -Type NoteProperty -Name IsExtended -Value $True;
@@ -1590,7 +1587,7 @@ function HCPosh
 							$MetadataNewGroups = $MetadataNew.Entities.SourcedByEntities | Group-Object -Property FullyQualifiedNM
 							foreach ($MetadataNewGroup in $MetadataNewGroups)
 							{
-								$HCSourcedByEntity = CreateEmpty-HCSourcedByEntityObject
+								$HCSourcedByEntity = New-HCEmptySourcedByEntityObject
 								#$HCSourcedByEntity.ServerNM = $MetadataNewGroup.Group[0].ServerNM
 								$HCSourcedByEntity.DatabaseNM = $MetadataNewGroup.Group[0].DatabaseNM
 								$HCSourcedByEntity.SchemaNM = $MetadataNewGroup.Group[0].SchemaNM
@@ -1598,17 +1595,17 @@ function HCPosh
 								$HCSourcedByEntity.FullyQualifiedNM = $MetadataNewGroup.Group[0].FullyQualifiedNM
 								$HCSourcedByEntity.TableOrigin = $MetadataNewGroup.Group[0].TableOrigin
 								$HCSourcedByEntity.SourceContentId = $MetadataNewGroup.Group[0].SourceContentId
-								$HCSourcedByEntity.BindingCount = ($MetadataNewGroup.Group.BindingCount | Measure -Sum).Sum
+								$HCSourcedByEntity.BindingCount = ($MetadataNewGroup.Group.BindingCount | Measure-Object -Sum).Sum
 								$HCSourcedByEntity.PSObject.Properties.Remove('AliasNM')
 								
 								
 								$ColumnGroups = $MetadataNewGroup.Group.SourcedByColumns | Group-Object ColumnNM
 								foreach ($ColumnGroup in $ColumnGroups)
 								{
-									$HCSourcedByColumn = CreateEmpty-HCSourcedByColumnObject
+									$HCSourcedByColumn = New-HCEmptySourcedByColumnObject
 									$HCSourcedByColumn.ColumnNM = $ColumnGroup.Group[0].ColumnNM
 									$HCSourcedByColumn.FullyQualifiedNM = $ColumnGroup.Group[0].FullyQualifiedNM
-									$HCSourcedByColumn.BindingCount = ($ColumnGroup.Group.BindingCount | Measure -Sum).Sum
+									$HCSourcedByColumn.BindingCount = ($ColumnGroup.Group.BindingCount | Measure-Object -Sum).Sum
 									$HCSourcedByColumn.PSObject.Properties.Remove('AliasNM')
 									
 									$HCSourcedByEntity.SourcedByColumns += $HCSourcedByColumn
@@ -1688,7 +1685,7 @@ function HCPosh
 							}
 							$Entity.Bindings = $Bindings;
 							
-							if ($Entity.ClassificationCode -ne 'DataEntry' -and ($Entity.Bindings | measure).Count -eq 0)
+							if ($Entity.ClassificationCode -ne 'DataEntry' -and ($Entity.Bindings | Measure-Object).Count -eq 0)
 							{
 								$DocsData.Entities = $DocsData.Entities | Where-Object { $_ -ne $DocsData.Entities[$DocsData.Entities.ContentId.IndexOf($Entity.ContentId)] }
 							}
@@ -1696,14 +1693,14 @@ function HCPosh
 						$validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'Generic') -contains $_.ClassificationCode) }
 						
 						#region FUNCTIONS FOR DATA LINEAGE
-						function CreateEmpty-Nodes
+						function New-EmptyNodes
 						{
 							$Nodes = New-Object PSObject
 							$Nodes | Add-Member -Type NoteProperty -Name Upstream -Value @()
 							$Nodes | Add-Member -Type NoteProperty -Name Downstream -Value @()
 							return $Nodes
 						}
-						function CreateEmpty-Node
+						function New-EmptyNode
 						{
 							$Node = New-Object PSObject
 							$Node | Add-Member -Type NoteProperty -Name Level -Value $Null
@@ -1714,7 +1711,7 @@ function HCPosh
 							$Node | Add-Member -Type NoteProperty -Name Edges -Value @()
 							return $Node
 						}
-						function CreateEmpty-Edge
+						function New-EmptyEdge
 						{
 							$Edge = New-Object PSObject
 							$Edge | Add-Member -Type NoteProperty -Name ContentId -Value $Null
@@ -1822,9 +1819,9 @@ function HCPosh
 							$Groups.GroupId = "$($Groups.Group1)_$($Groups.Group2)_$($Groups.Group3)"
 							return $Groups
 						}
-						function Create-UpstreamNode ($Entity, $Level)
+						function New-UpstreamNode ($Entity, $Level)
 						{
-							$NewNode = CreateEmpty-Node
+							$NewNode = New-EmptyNode
 							$NewNode.Level = $Level
 							$NewNode.Direction = 'Upstream'
 							$NewNode.ContentId = $Entity.ContentId
@@ -1835,7 +1832,7 @@ function HCPosh
 							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure).Count)) " } else { '' };
 							foreach ($Upstream in $Entity.SourcedByEntities)
 							{
-								$NewEdge = CreateEmpty-Edge
+								$NewEdge = New-EmptyEdge
 								$NewEdge.ContentId = $Upstream.SourceContentId
 								$NewEdge.Attributes.DatabaseNM = $Upstream.DatabaseNM
 								$NewEdge.Attributes.SchemaNM = $Upstream.SchemaNM
@@ -1847,9 +1844,9 @@ function HCPosh
 							$NewNode.Groups = Get-NodeGroups -Node $NewNode
 							return $NewNode
 						}
-						function Create-DownstreamNode ($Entity, $Level)
+						function New-DownstreamNode ($Entity, $Level)
 						{
-							$NewNode = CreateEmpty-Node
+							$NewNode = New-EmptyNode
 							$NewNode.Level = $Level
 							$NewNode.Direction = 'Downstream'
 							$NewNode.ContentId = $Entity.ContentId
@@ -1860,7 +1857,7 @@ function HCPosh
 							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure).Count)) " } else { '' };
 							foreach ($Downstream in $DocsData.Entities | Where-Object { $_.SourcedByEntities.SourceContentId -eq $NewNode.ContentId })
 							{
-								$NewEdge = CreateEmpty-Edge
+								$NewEdge = New-EmptyEdge
 								$NewEdge.ContentId = $Downstream.ContentId
 								$NewEdge.Attributes.DatabaseNM = $Downstream.DatabaseNM
 								$NewEdge.Attributes.SchemaNM = $Downstream.SchemaNM
@@ -1879,13 +1876,13 @@ function HCPosh
 							param ($Entity)
 							begin
 							{
-								$Nodes = CreateEmpty-Nodes;
+								$Nodes = New-EmptyNodes;
 							}
 							process
 							{
 								#UPSTREAM LINEAGE
 								$Level = 0;
-								$Nodes.Upstream += Create-UpstreamNode -entity $Entity -level $Level;
+								$Nodes.Upstream += New-UpstreamNode -entity $Entity -level $Level;
 								$Index = 0;
 								$Batches = 1;
 								do
@@ -1898,7 +1895,7 @@ function HCPosh
 									{
 										if ($Edge.ContentId)
 										{
-											$Node = Create-UpstreamNode -entity (Get-Entity -contentId $Edge.ContentId) -level $Level;
+											$Node = New-UpstreamNode -entity (Get-Entity -contentId $Edge.ContentId) -level $Level;
 											if ($Nodes.Upstream.ContentId.indexOf($Node.ContentId) -eq -1)
 											{
 												$Nodes.Upstream += $Node;
@@ -1911,7 +1908,7 @@ function HCPosh
 											$ExtEntity | Add-Member -Type NoteProperty -Name SchemaNM -Value $Edge.Attributes.SchemaNM
 											$ExtEntity | Add-Member -Type NoteProperty -Name ViewName -Value $Edge.Attributes.TableNM
 											$ExtEntity | Add-Member -Type NoteProperty -Name FullyQualifiedNames -Value @{ View = $Edge.Attributes.FullyQualifiedNM; }
-											$Node = Create-UpstreamNode -entity $ExtEntity -level $Level;
+											$Node = New-UpstreamNode -entity $ExtEntity -level $Level;
 											if ($Nodes.Upstream.Attributes.FullyQualifiedNM.indexOf($Node.Attributes.FullyQualifiedNM) -eq -1)
 											{
 												$Nodes.Upstream += $Node;
@@ -1925,7 +1922,7 @@ function HCPosh
 								
 								#DOWNSTREAM LINEAGE
 								$Level = 0;
-								$Nodes.Downstream += Create-DownstreamNode -entity $Entity -level $Level;
+								$Nodes.Downstream += New-DownstreamNode -entity $Entity -level $Level;
 								$Index = 0;
 								$Batches = 1;
 								do
@@ -1936,7 +1933,7 @@ function HCPosh
 									$Batches = $Batches + $EdgeCount;
 									foreach ($Edge in $Edges)
 									{
-										$Node = Create-DownstreamNode -entity (Get-Entity -contentId $Edge.ContentId) -level $Level;
+										$Node = New-DownstreamNode -entity (Get-Entity -contentId $Edge.ContentId) -level $Level;
 										if ($Nodes.Downstream.ContentId.indexOf($Node.ContentId) -eq -1)
 										{
 											$Nodes.Downstream += $Node;
@@ -2067,7 +2064,7 @@ function HCPosh
 						}
 						#endregion
 						#region FUNCTIONS FOR EMPTY DIAGRAM OBJECTS
-						function CreateEmpty-DiagramGraph
+						function New-EmptyDiagramGraph
 						{
 							param
 							(
@@ -2097,7 +2094,7 @@ function HCPosh
 							
 							return $Diagram
 						}
-						function CreateEmpty-DiagramSubgraph
+						function New-EmptyDiagramSubgraph
 						{
 							$Subgraph = New-Object PSObject
 							$Subgraph | Add-Member -Type NoteProperty -Name SubgraphId -Value $Null
@@ -2107,7 +2104,7 @@ function HCPosh
 							$Subgraph | Add-Member -Type NoteProperty -Name Ports -Value @()
 							return $Subgraph
 						}
-						function CreateEmpty-DiagramNode
+						function New-EmptyDiagramNode
 						{
 							$DiagramNode = New-Object PSObject
 							$DiagramNode | Add-Member -Type NoteProperty -Name NodeId -Value $Null
@@ -2116,7 +2113,7 @@ function HCPosh
 							$DiagramNode | Add-Member -Type NoteProperty -Name Props -Value @()
 							return $DiagramNode
 						}
-						function CreateEmpty-DiagramPort
+						function New-EmptyDiagramPort
 						{
 							$DiagramPort = New-Object PSObject
 							$DiagramPort | Add-Member -Type NoteProperty -Name PortId -Value $Null
@@ -2125,7 +2122,7 @@ function HCPosh
 							$DiagramPort | Add-Member -Type NoteProperty -Name Edges -Value @()
 							return $DiagramPort
 						}
-						function CreateEmpty-DiagramItem
+						function New-EmptyDiagramItem
 						{
 							$DiagramItem = New-Object PSObject
 							$DiagramItem | Add-Member -Type NoteProperty -Name ItemId -Value $Null
@@ -2133,7 +2130,7 @@ function HCPosh
 							$DiagramItem | Add-Member -Type NoteProperty -Name Props -Value @()
 							return $DiagramItem
 						}
-						function CreateEmpty-DiagramEdge
+						function New-EmptyDiagramEdge
 						{
 							$DiagramEdge = New-Object PSObject
 							$DiagramEdge | Add-Member -Type NoteProperty -Name From -Value (New-Object PSObject -Property @{ NodeId = $Null; PortId = $Null; })
@@ -2151,7 +2148,7 @@ function HCPosh
 							)
 							
 							#Gcreate a new ERD object using the datamart name as the ERD name
-							$Erd = CreateEmpty-DiagramGraph -Name Erd -Types @('Full', 'Minimal')
+							$Erd = New-EmptyDiagramGraph -Name Erd -Types @('Full', 'Minimal')
 							$Erd.Erd.Data.GraphId = """" + $DocsData.DatamartNM + """"
 							$Erd.Erd.Data.GraphName = $DocsData.DatamartNM
 							
@@ -2162,7 +2159,7 @@ function HCPosh
 							#Interate through these entities and create a new node
 							forEach ($Entity in $Entities)
 							{
-								$ErdNode = CreateEmpty-DiagramNode
+								$ErdNode = New-EmptyDiagramNode
 								$ErdNode.NodeId = """" + $Entity.FullyQualifiedNames.View + """"
 								$ErdNode.NodeName = $Entity.FullyQualifiedNames.View
 								$ErdNode.Props = $Entity.Columns
@@ -2171,11 +2168,11 @@ function HCPosh
 								$PkColumns = $ErdNode.Props | Where-Object IsPrimaryKeyValue
 								if ($PkColumns)
 								{
-									$PkPort = CreateEmpty-DiagramPort
+									$PkPort = New-EmptyDiagramPort
 									$PkPort.PortId = 0
 									foreach ($PkColumn in $PkColumns)
 									{
-										$PkItem = CreateEmpty-DiagramItem
+										$PkItem = New-EmptyDiagramItem
 										$PkItem.ItemId = $PkColumn.ContentId
 										$PkItem.ItemName = $PkColumn.ColumnNM
 										$PkItem.Props += @{ DataTypeDSC  = $PkColumn.DataTypeDSC; Ordinal = $PkColumn.Ordinal }
@@ -2199,7 +2196,7 @@ function HCPosh
 									$TotalCount = ($OtherPort.Items | Measure).Count
 									$MaxPortId = ($Node.Ports.PortId | Measure -Maximum).Maximum
 									if (!$MaxPortId) { $MaxPortId = 0 }
-									$FkPort = CreateEmpty-DiagramPort
+									$FkPort = New-EmptyDiagramPort
 									
 									forEach ($OtherItem in $OtherPort.Items)
 									{
@@ -2207,7 +2204,7 @@ function HCPosh
 										{
 											$TempColumn = $Node.Props[$Node.Props.ColumnNM.ToLower().IndexOf($OtherItem.ItemName.ToLower())]
 											$FkPort.PortId = $MaxPortId + 1
-											$FkItem = CreateEmpty-DiagramItem
+											$FkItem = New-EmptyDiagramItem
 											$FkItem.ItemId = $TempColumn.ContentId
 											$FkItem.ItemName = $TempColumn.ColumnNM
 											$FkItem.Props += @{ DataTypeDSC = $TempColumn.DataTypeDSC; Ordinal = $TempColumn.Ordinal }
@@ -2218,7 +2215,7 @@ function HCPosh
 										{
 											$FkPort.Props += @{ PortType = 'FK'; PortLinkId	= ($FkPort.Items.ItemName | Sort-Object ItemName) -join "_" }
 											
-											$FkEdge = CreateEmpty-DiagramEdge
+											$FkEdge = New-EmptyDiagramEdge
 											$FkEdge.From.NodeId = $Node.NodeId
 											$FkEdge.To.NodeId = $OtherNode.NodeId
 											$FkEdge.To.PortId = 0
@@ -2250,14 +2247,14 @@ function HCPosh
 								
 								$MaxPortId = ($Node.Ports.PortId | Measure -Maximum).Maximum
 								if (!$MaxPortId) { $MaxPortId = 0 }
-								$LastPort = CreateEmpty-DiagramPort
+								$LastPort = New-EmptyDiagramPort
 								$LastPort.PortId = $MaxPortId + 1
 								$LastPort.Props += @{ PortType = ' ' }
 								forEach ($Col in $Node.Props | Sort-Object Ordinal)
 								{
 									if ($Node.Ports.Items.ItemName -notcontains $Col.ColumnNM)
 									{
-										$LastItem = CreateEmpty-DiagramItem
+										$LastItem = New-EmptyDiagramItem
 										$LastItem.ItemId = $Col.ContentId
 										$LastItem.ItemName = "$(if ($Col.IsExtended) {'*'})$($Col.ColumnNM)"
 										$LastItem.Props += @{ DataTypeDSC = $Col.DataTypeDSC; Ordinal = $Col.Ordinal }
@@ -2389,7 +2386,7 @@ function HCPosh
 								{
 									return ($string -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
 								}
-								$Dfd = CreateEmpty-DiagramGraph -Name Dfd -Types @('LR', 'TB')
+								$Dfd = New-EmptyDiagramGraph -Name Dfd -Types @('LR', 'TB')
 								$Dfd.Dfd.Data.GraphId = """$($Name)"""
 								$Dfd.Dfd.Data.GraphName = $Name
 							}
@@ -2401,15 +2398,15 @@ function HCPosh
 									$Externals = $Lineage.Upstream | Where-Object { $_.Groups.Group1 -eq 'External' } | Group-Object { "$($_.Groups.GroupId)" }
 									forEach ($External in $Externals)
 									{
-										$Subgraph = CreateEmpty-DiagramSubgraph
+										$Subgraph = New-EmptyDiagramSubgraph
 										$Subgraph.SubgraphId = """cluster_$($External.Name)"""
 										$Subgraph.SubgraphName = $External.Group[0].Groups.Group3.ToUpper()
 										$Subgraph.Props = (Get-Color -code $External.Group[0].Groups.Group2).ColorLight
-										$Port = CreateEmpty-DiagramPort
+										$Port = New-EmptyDiagramPort
 										$Port.PortId = """$($External.Name)"""
 										forEach ($Item in $External.Group)
 										{
-											$NewItem = CreateEmpty-DiagramItem
+											$NewItem = New-EmptyDiagramItem
 											$NewItem.ItemId = """$($Item.Attributes.FullyQualifiedNM)"""
 											$NewItem.ItemName = "$($Item.Attributes.SchemaNM).$($Item.Attributes.TableNM)"
 											if ($Port.Items.ItemId -notcontains $NewItem.ItemId)
@@ -2429,7 +2426,7 @@ function HCPosh
 								}
 								#endregion
 								#region LOCAL
-								$Subgraph = CreateEmpty-DiagramSubgraph
+								$Subgraph = New-EmptyDiagramSubgraph
 								$Subgraph.SubgraphId = """cluster_$($Name)"""
 								$Subgraph.SubgraphName = $Name
 								$Subgraph.Props = (Get-Color -code "Datamart").ColorLight
@@ -2444,7 +2441,7 @@ function HCPosh
 								}
 								forEach ($Local in $Locals)
 								{
-									$Subgraph2 = CreateEmpty-DiagramSubgraph
+									$Subgraph2 = New-EmptyDiagramSubgraph
 									$Subgraph2.SubgraphId = """cluster_$($Local.Name)"""
 									$Subgraph2.SubgraphName = $Local.Group[0].Groups.Group2.ToUpper()
 									$Subgraph2.Props = (Get-Color -code $Local.Group[0].Groups.Group2).ColorLight
@@ -2452,16 +2449,16 @@ function HCPosh
 									$Locals2 = $Local.Group | Group-Object { "$($_.Groups.Group3)" }
 									forEach ($Local2 in $Locals2)
 									{
-										$Subgraph3 = CreateEmpty-DiagramSubgraph
+										$Subgraph3 = New-EmptyDiagramSubgraph
 										$Subgraph3.SubgraphId = """cluster_$($Local2.Name)"""
 										$Subgraph3.SubgraphName = $Local2.Group[0].Groups.Group3.ToUpper()
 										$Subgraph3.Props = (Get-Color -code $Local.Group[0].Groups.Group2).ColorDark
 										
-										$Port = CreateEmpty-DiagramPort
+										$Port = New-EmptyDiagramPort
 										$Port.PortId = """$($Local2.Group[0].Groups.GroupId)"""
 										forEach ($Item in $Local2.Group)
 										{
-											$NewItem = CreateEmpty-DiagramItem
+											$NewItem = New-EmptyDiagramItem
 											$NewItem.ItemId = """$($Item.Attributes.FullyQualifiedNM)"""
 											$NewItem.ItemName = "$($Item.Attributes.BindingCNT)$($Item.Attributes.SchemaNM).$($Item.Attributes.TableNM)"
 											if ($Port.Items.ItemId -notcontains $NewItem.ItemId)
@@ -2473,14 +2470,14 @@ function HCPosh
 											
 											ForEach ($Edge in $Downstream.Edges.Groups.GroupId)
 											{
-												$NewEdge = CreateEmpty-DiagramEdge
+												$NewEdge = New-EmptyDiagramEdge
 												$NewEdge.From.PortId = $Item.Groups.GroupId
 												$NewEdge.To.PortId = $Edge
 												$Port.Edges += $NewEdge
 											}
 											ForEach ($Edge in $Upstream.Edges.Groups.GroupId)
 											{
-												$NewEdge = CreateEmpty-DiagramEdge
+												$NewEdge = New-EmptyDiagramEdge
 												$NewEdge.From.PortId = $Edge
 												$NewEdge.To.PortId = $Item.Groups.GroupId
 												$Port.Edges += $NewEdge
@@ -2781,7 +2778,7 @@ function HCPosh
 						$DocsData._hcposh.LastWriteTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.ffffff")
 						
 						#Directories
-						$DataDir = "$($OutDir)\static\data"; Create-Directory -Dir $DataDir;
+						$DataDir = "$($OutDir)\static\data"; New-Directory -Dir $DataDir;
 						
 						#Files
 						$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh)[0].path -Parent)\docs\*";
@@ -2835,7 +2832,7 @@ function HCPosh
 					begin
 					{
 						#region CREATE DIRECTORIES
-						function Create-Directory ($Dir)
+						function New-Directory ($Dir)
 						{
 							If (!(Test-Path $Dir))
 							{
@@ -2847,8 +2844,8 @@ function HCPosh
 						$validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'Generic') -contains $_.ClassificationCode) }
 						
 						#Directories
-						$DiagramsDir = "$($OutDir)"; Create-Directory -Dir $DiagramsDir;
-						$GvDir = "$($DiagramsDir)\gv"; Create-Directory -Dir $GvDir;
+						$DiagramsDir = "$($OutDir)"; New-Directory -Dir $DiagramsDir;
+						$GvDir = "$($DiagramsDir)\gv"; New-Directory -Dir $GvDir;
 					}
 					process
 					{
@@ -3242,7 +3239,7 @@ function HCPosh
 									$Msg = "$(" " * 8)$(("{0:P0}" -f ($J/$Total)).PadLeft(5)) $($J.ToString().PadLeft($Total.ToString().Length))/$($Total) ...parsing..."; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 								}
 								$Q = $True;
-								$ParsedTables = $(Parse-Sql -Query $Query.'$Query' -Log $False -SelectStar $False -Brackets $False)
+								$ParsedTables = $(Split-Sql -Query $Query.'$Query' -Log $False -SelectStar $False -Brackets $False)
 								
 								foreach ($ParsedTable in $ParsedTables)
 								{
@@ -3393,7 +3390,7 @@ function HCPosh
 		switch ($PsCmdlet.ParameterSetName)
 		{
 			'SqlParser'  {
-				Parse-Sql -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
+				Split-Sql -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
 			}
 			'Data'  {
 				$Pipe = $Files | Select-Object @{ n = 'File'; e = { $_.FullName } }, @{ n = 'OutDir'; e = { "$($_.Directory)\_hcposh\$($_.BaseName)" } }
