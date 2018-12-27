@@ -1229,7 +1229,7 @@ function HCPosh
 										}
 										#endregion
 										#region CREATE ISSUE FILES
-										if (($MetadataNew.Entities.Bindings.SourcedByEntities.SourcedByPossibleColumns | Measure).Count -gt 0)
+										if (($MetadataNew.Entities.Bindings.SourcedByEntities.SourcedByPossibleColumns | Measure-Object).Count -gt 0)
 										{
 											$Out = @()
 											forEach ($Binding in $MetadataNew.Entities.Bindings)
@@ -1344,7 +1344,7 @@ function HCPosh
 							
 							
 							#Update extension entities
-							foreach ($Extension in $MetadataNew.Entities | Where-Object { ($_.ExtensionContentIds.PsObject.Properties.Value | measure).Count -eq 3 })
+							foreach ($Extension in $MetadataNew.Entities | Where-Object { ($_.ExtensionContentIds.PsObject.Properties.Value | Measure-Object).Count -eq 3 })
 							{
 								foreach ($property in $Extension.ExtensionContentIds.PsObject.Properties)
 								{
@@ -1367,7 +1367,7 @@ function HCPosh
 							}							
 							#endregion
 							
-							$MetadataNew.MaxLastModifiedTimestamp<#extension#> = ($MetadataNew.Entities.LastModifiedTimestamp | Measure -Maximum).Maximum
+							$MetadataNew.MaxLastModifiedTimestamp<#extension#> = ($MetadataNew.Entities.LastModifiedTimestamp | Measure-Object -Maximum).Maximum
 							
 							$Msg = "$(" " * 8)$(($MetadataNew.Entities | Measure-Object).Count) - Entities"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 							$Msg = "$(" " * 8)$(($MetadataNew.Entities.Bindings | Measure-Object).Count) - Bindings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
@@ -1383,7 +1383,7 @@ function HCPosh
 									{
 										#New property added to store a maximum of 300 records for that Data entry entity
 										#@{ FullyQualifiedNM = $Csv.BaseName; Data = Import-Csv -Path $Csv.FullName; Msg = $null }
-										$DataEntryRecordCNT = ($MetadataRaw.DataEntryData[$DataEntryDataIndex].Data | Measure).Count
+										$DataEntryRecordCNT = ($MetadataRaw.DataEntryData[$DataEntryDataIndex].Data | Measure-Object).Count
 										if ($DataEntryRecordCNT -gt 300)
 										{
 											$Msg = "Displaying only 300 out of $($DataEntryRecordCNT) records"
@@ -1829,7 +1829,7 @@ function HCPosh
 							$NewNode.Attributes.SchemaNM = $Entity.SchemaNM
 							$NewNode.Attributes.TableNM = $Entity.ViewName
 							$NewNode.Attributes.FullyQualifiedNM = $Entity.FullyQualifiedNames.View
-							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure).Count)) " } else { '' };
+							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure-Object).Count)) " } else { '' };
 							foreach ($Upstream in $Entity.SourcedByEntities)
 							{
 								$NewEdge = New-EmptyEdge
@@ -1854,7 +1854,7 @@ function HCPosh
 							$NewNode.Attributes.SchemaNM = $Entity.SchemaNM
 							$NewNode.Attributes.TableNM = $Entity.ViewName
 							$NewNode.Attributes.FullyQualifiedNM = $Entity.FullyQualifiedNames.View
-							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure).Count)) " } else { '' };
+							$NewNode.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure-Object).Count)) " } else { '' };
 							foreach ($Downstream in $DocsData.Entities | Where-Object { $_.SourcedByEntities.SourceContentId -eq $NewNode.ContentId })
 							{
 								$NewEdge = New-EmptyEdge
@@ -1863,14 +1863,14 @@ function HCPosh
 								$NewEdge.Attributes.SchemaNM = $Downstream.SchemaNM
 								$NewEdge.Attributes.TableNM = $Downstream.ViewName
 								$NewEdge.Attributes.FullyQualifiedNM = $Downstream.FullyQualifiedNames.View
-								$NewEdge.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure).Count)) " } else { '' };
+								$NewEdge.Attributes.BindingCNT = if ($Entity.Bindings) { "($(($Entity.Bindings | Measure-Object).Count)) " } else { '' };
 								$NewEdge.Groups = Get-NodeGroups -Node $NewEdge
 								$NewNode.Edges += $NewEdge
 							}
 							$NewNode.Groups = Get-NodeGroups -Node $NewNode
 							return $NewNode
 						}
-						function Create-Nodes
+						function New-Nodes
 						{
 							[CmdletBinding()]
 							param ($Entity)
@@ -1888,7 +1888,7 @@ function HCPosh
 								do
 								{
 									$Edges = $Nodes.Upstream[$Index].Edges
-									$EdgeCount = ($Edges | Measure).Count;
+									$EdgeCount = ($Edges | Measure-Object).Count;
 									$Level = $Nodes.Upstream[$Index].Level - 1;
 									$Batches = $Batches + $EdgeCount;
 									foreach ($Edge in $Edges)
@@ -1928,7 +1928,7 @@ function HCPosh
 								do
 								{
 									$Edges = $Nodes.Downstream[$Index].Edges | Where-Object { $_.ContentId }
-									$EdgeCount = ($Edges | Measure).Count;
+									$EdgeCount = ($Edges | Measure-Object).Count;
 									$Level = $Nodes.Downstream[$Index].Level + 1;
 									$Batches = $Batches + $EdgeCount;
 									foreach ($Edge in $Edges)
@@ -2021,7 +2021,7 @@ function HCPosh
 											$Level3Obj = Get-ParentChildrenObj;
 											$Level3Obj.Parent = $PropLevel3;
 											$Level4 = $Level3.$PropLevel3
-											$Level3Obj.Ordinal = ($Level4.Level | Measure -Average).Average
+											$Level3Obj.Ordinal = ($Level4.Level | Measure-Object -Average).Average
 											$PropsLevel4 = $Level4
 											$b = 1;
 											forEach ($PropLevel4 in $PropsLevel4 | Sort-Object { $_.FullyQualifiedNM })
@@ -2053,10 +2053,10 @@ function HCPosh
 										{
 											$Multiple = 1000;
 										}
-										$Level2Obj.Ordinal = ($Level3Obj.Ordinal | Measure -Average).Average + $Multiple
+										$Level2Obj.Ordinal = ($Level3Obj.Ordinal | Measure-Object -Average).Average + $Multiple
 										$Level1Obj.Children += $Level2Obj
 									}
-									$Level1Obj.Ordinal = ($Level2Obj.Ordinal | Measure -Average).Average
+									$Level1Obj.Ordinal = ($Level2Obj.Ordinal | Measure-Object -Average).Average
 									$LineageArray += $Level1Obj
 								}
 								return $LineageArray
@@ -2139,7 +2139,7 @@ function HCPosh
 						}
 						#endregion
 						#region FUNCTIONS FOR ERD DIAGRAMS
-						function Create-Erd
+						function New-Erd
 						{
 							param
 							(
@@ -2193,8 +2193,8 @@ function HCPosh
 								{
 									$OtherPort = $OtherNode.Ports | Where-Object { $_.Props.PortType -eq 'PK' }
 									$Count = 0;
-									$TotalCount = ($OtherPort.Items | Measure).Count
-									$MaxPortId = ($Node.Ports.PortId | Measure -Maximum).Maximum
+									$TotalCount = ($OtherPort.Items | Measure-Object).Count
+									$MaxPortId = ($Node.Ports.PortId | Measure-Object -Maximum).Maximum
 									if (!$MaxPortId) { $MaxPortId = 0 }
 									$FkPort = New-EmptyDiagramPort
 									
@@ -2245,7 +2245,7 @@ function HCPosh
 									}
 								}
 								
-								$MaxPortId = ($Node.Ports.PortId | Measure -Maximum).Maximum
+								$MaxPortId = ($Node.Ports.PortId | Measure-Object -Maximum).Maximum
 								if (!$MaxPortId) { $MaxPortId = 0 }
 								$LastPort = New-EmptyDiagramPort
 								$LastPort.PortId = $MaxPortId + 1
@@ -2261,7 +2261,7 @@ function HCPosh
 										$LastPort.Items += $LastItem
 									}
 								}
-								if (($LastPort.Items | Measure).Count -gt 0)
+								if (($LastPort.Items | Measure-Object).Count -gt 0)
 								{
 									$Node.Ports += $LastPort
 								}
@@ -2271,8 +2271,8 @@ function HCPosh
 							
 							if ($Erd.Erd.Data.Nodes.Ports.Edges)
 							{
-								$Erd.Erd.Graphviz.Full = Create-ErdGraphviz -ErdData $Erd.Erd.Data
-								$Erd.Erd.Graphviz.Minimal = Create-ErdGraphviz -ErdData $Erd.Erd.Data -Minimal
+								$Erd.Erd.Graphviz.Full = New-ErdGraphviz -ErdData $Erd.Erd.Data
+								$Erd.Erd.Graphviz.Minimal = New-ErdGraphviz -ErdData $Erd.Erd.Data -Minimal
 							}
 							else
 							{
@@ -2280,7 +2280,7 @@ function HCPosh
 							}
 							return $Erd
 						}
-						function Create-ErdGraphviz
+						function New-ErdGraphviz
 						{
 							[CmdletBinding()]
 							param
@@ -2349,7 +2349,7 @@ function HCPosh
 						}
 						#endregion
 						#region FUNCTIONS FOR DFD DIAGRAMS
-						function Create-Dfd
+						function New-Dfd
 						{
 							[CmdletBinding()]
 							param
@@ -2504,12 +2504,12 @@ function HCPosh
 							end
 							{
 								$Dfd.Dfd.Data.PSObject.Properties.Remove('Nodes')
-								$Dfd.Dfd.Graphviz.LR = Create-DfdGraphviz -DfdData $Dfd.Dfd.Data -Direction LR
-								$Dfd.Dfd.Graphviz.TB = Create-DfdGraphviz -DfdData $Dfd.Dfd.Data -Direction TB
+								$Dfd.Dfd.Graphviz.LR = New-DfdGraphviz -DfdData $Dfd.Dfd.Data -Direction LR
+								$Dfd.Dfd.Graphviz.TB = New-DfdGraphviz -DfdData $Dfd.Dfd.Data -Direction TB
 								return $Dfd
 							}
 						}
-						function Create-DfdGraphviz
+						function New-DfdGraphviz
 						{
 							[CmdletBinding()]
 							param
@@ -2622,7 +2622,7 @@ function HCPosh
 							foreach ($Entity in $DocsData.Entities)
 							{
 								$Entity | Add-Member -Type NoteProperty -Name Lineage -Value @()
-								$Entity.Lineage = Create-Nodes -entity $Entity
+								$Entity.Lineage = New-Nodes -entity $Entity
 							}
 						}
 						catch
@@ -2637,7 +2637,7 @@ function HCPosh
 						try
 						{
 							$Msg = "$(" " * 4)Adding erd diagram..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-							$DocsData.Diagrams.Erd = (Create-Erd -DocsData $DocsData).Erd
+							$DocsData.Diagrams.Erd = (New-Erd -DocsData $DocsData).Erd
 							
 							if (!$KeepFullLineage)
 							{
@@ -2657,9 +2657,9 @@ function HCPosh
 						$Msg = "$(" " * 4)Adding dfd diagrams..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
 						try
 						{
-							$DocsData.Diagrams.Dfd = (Create-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Both).Dfd
-							$DocsData.Diagrams.DfdUpstream = (Create-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Upstream).Dfd
-							$DocsData.Diagrams.DfdDownstream = (Create-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Downstream).Dfd
+							$DocsData.Diagrams.Dfd = (New-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Both).Dfd
+							$DocsData.Diagrams.DfdUpstream = (New-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Upstream).Dfd
+							$DocsData.Diagrams.DfdDownstream = (New-Dfd -Name $DocsData.DatamartNM -Lineage ($DocsData.Entities | Where-Object $validPublicEntities).Lineage -Type Downstream).Dfd
 							
 							if (!$KeepFullLineage)
 							{
@@ -2685,9 +2685,9 @@ function HCPosh
 								{
 									$PublicEntity | Add-Member -Type NoteProperty -Name Diagrams -Value (New-Object PSObject -Property @{ Dfd = $Null; DfdUpstream = $Null; DfdDownstream = $Null })
 									$Msg = "$(" " * 4)Adding dfd diagrams...$($PublicEntity.FullyQualifiedNames.Table)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-									$PublicEntity.Diagrams.Dfd = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Both).Dfd
-									$PublicEntity.Diagrams.DfdDownstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Downstream).Dfd
-									$PublicEntity.Diagrams.DfdUpstream = (Create-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Upstream).Dfd
+									$PublicEntity.Diagrams.Dfd = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Both).Dfd
+									$PublicEntity.Diagrams.DfdDownstream = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Downstream).Dfd
+									$PublicEntity.Diagrams.DfdUpstream = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Upstream).Dfd
 								}
 							}
 						}
@@ -2786,7 +2786,7 @@ function HCPosh
 						$DataFilePath = "$($DataDir)\dataMart.js";
 						try
 						{
-							if (($DocsData.Entities | Where-Object $validPublicEntities | measure).Count -eq 0) { throw; }
+							if (($DocsData.Entities | Where-Object $validPublicEntities | Measure-Object).Count -eq 0) { throw; }
 							Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
 							'dataMart = ' + ($DocsData | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
 							$Msg = "$(" " * 4)Created new file --> $($DocsData._hcposh.FileBaseName)\$(Split-Path $DataDir -Leaf)\$(Split-Path $DataFilePath -Leaf)."; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
@@ -2933,7 +2933,7 @@ function HCPosh
 					)
 					begin
 					{
-						function create-emptyfile ($OutFile)
+						function New-EmptyFile ($OutFile)
 						{
 							try
 							{
@@ -2958,10 +2958,10 @@ function HCPosh
 							
 							if ($TemplateFlag -eq 'y')
 							{
-								create-emptyfile './_impactConfig.json'; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
-								create-emptyfile './columns.sql'; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
-								create-emptyfile './mappings.csv'; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
-								create-emptyfile './queries.sql'; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
+								New-EmptyFile './_impactConfig.json'; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
+								New-EmptyFile './columns.sql'; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
+								New-EmptyFile './mappings.csv'; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
+								New-EmptyFile './queries.sql'; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
 								
 								$Msg = "Configuration files created, rerun when you are ready.`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
 							}
@@ -3031,7 +3031,7 @@ function HCPosh
 											{
 												$Columns = Invoke-Sqlcmd -Query $ColumnsSQL -ServerInstance $Server -Database $ColumnsDb
 											}
-											$Msg = "$(" " * 8)$(($Columns | Measure).Count) records from query ""$(Split-Path $ColumnsPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+											$Msg = "$(" " * 8)$(($Columns | Measure-Object).Count) records from query ""$(Split-Path $ColumnsPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 											
 											$Properties = ($Columns[0] | Get-Member | Where-Object MemberType -eq Property).Name
 											
@@ -3100,7 +3100,7 @@ function HCPosh
 											{
 												$Queries = Invoke-Sqlcmd -Query $QueriesSQL -ServerInstance $Server -Database $QueriesDb -MaxCharLength 8000000
 											}
-											$Msg = "$(" " * 8)$(($Queries | Measure).Count) records from query ""$(Split-Path $QueriesPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+											$Msg = "$(" " * 8)$(($Queries | Measure-Object).Count) records from query ""$(Split-Path $QueriesPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 											
 											$Properties = ($Queries[0] | Get-Member | Where-Object MemberType -eq Property).Name
 											
@@ -3160,7 +3160,7 @@ function HCPosh
 											$Msg = "$(" " * 4)Unable to parse the contents of the ""$(Split-Path $Config.Mappings.CSV.FilePath -Leaf)"" file"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
 											Break;
 										}
-										$Msg = "$(" " * 8)$(($Mappings | Measure).Count) records from csv ""$(Split-Path $MappingsPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+										$Msg = "$(" " * 8)$(($Mappings | Measure-Object).Count) records from csv ""$(Split-Path $MappingsPath -Leaf)"""; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 										
 										$Properties = ($Mappings[0] | Get-Member | Where-Object MemberType -eq NoteProperty).Name
 										
@@ -3186,9 +3186,9 @@ function HCPosh
 												$Columns[$Index].'$Mappings' += $AddMapping
 											}
 										}
-										$Msg = "$(" " * 8)$(($Columns.'$Mappings' | Measure).Count) columns assigned mappings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
+										$Msg = "$(" " * 8)$(($Columns.'$Mappings' | Measure-Object).Count) columns assigned mappings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
 										
-										$MappingsFlag = $Columns | Where-Object { ($_.'$Mappings' | Measure).Count -eq 0 } | Select-Object @{ n = 'FromDatabaseNM'; e = { $_.DatabaseNM } }, @{ n = 'FromSchemaNM'; e = { $_.SchemaNM } }, @{ n = 'FromTableNM'; e = { $_.TableNM } }, @{ n = 'FromColumnNM'; e = { $_.ColumnNM } }, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM
+										$MappingsFlag = $Columns | Where-Object { ($_.'$Mappings' | Measure-Object).Count -eq 0 } | Select-Object @{ n = 'FromDatabaseNM'; e = { $_.DatabaseNM } }, @{ n = 'FromSchemaNM'; e = { $_.SchemaNM } }, @{ n = 'FromTableNM'; e = { $_.TableNM } }, @{ n = 'FromColumnNM'; e = { $_.ColumnNM } }, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM
 									}
 								}
 								#endregion
@@ -3229,7 +3229,7 @@ function HCPosh
 						
 						try
 						{
-							$I = 0; $J = 0; $Total = ($Queries | Measure).Count;
+							$I = 0; $J = 0; $Total = ($Queries | Measure-Object).Count;
 							$DataQueriesToColumns = @()
 							$DataQueries = @()
 							foreach ($Query in $Queries)
