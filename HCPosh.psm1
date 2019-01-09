@@ -223,7 +223,7 @@ function HCPosh
 					{
 						try
 						{
-							$Graphviz = ".""$(Split-Path (Get-Module -ListAvailable HCPosh)[0].path -Parent)\Graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
+							$Graphviz = ".""$PSScriptRoot\libraries\graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
 						}
 						catch
 						{
