@@ -2781,7 +2781,7 @@ function HCPosh
 						$DataDir = "$($OutDir)\static\data"; New-Directory -Dir $DataDir;
 						
 						#Files
-						$DocsSourcePath = "$(Split-Path (Get-Module -ListAvailable HCPosh)[0].path -Parent)\docs\*";
+						$DocsSourcePath = "$PSScriptRoot\templates\docs\*";
 						$DocsDestinationPath = $OutDir;
 						$DataFilePath = "$($DataDir)\dataMart.js";
 						try
