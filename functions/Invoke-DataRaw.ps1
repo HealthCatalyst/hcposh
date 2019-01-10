@@ -57,14 +57,17 @@ function Invoke-DataRaw {
                 }
             }
             
-            $RawContent = ((Get-Content $SamFile.FullName | Select-Object -Skip 1) -join " ")
+            $RawContent = Get-Content $SamFile.FullName | Select-Object -Skip 1
             try {
-                $MetadataRaw = $RawContent | ConvertFrom-Json
+                $jsonSettings = New-Object Newtonsoft.Json.JsonSerializerSettings
+                $jsonSettings.TypeNameHandling = 'Objects'
+                $jsonSettings.PreserveReferencesHandling = 'Objects'
+                $MetadataRaw = [Newtonsoft.Json.JsonConvert]::DeserializeObject($RawContent, $jsonSettings)
             }
             catch {
-                # if the json object is too large; then attempt to parse json using dot net assemblies
-                [void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
-                $MetadataRaw = Split-LargeJsonItem ((New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer -Property @{ MaxJsonLength = [int]::MaxValue; RecursionLimit = [int]::MaxValue }).DeserializeObject($RawContent))
+                $ErrorMessage = $_.Exception.Message
+                $Msg = "$(" " * 8)Unable to deserialize json object :( --> $ErrorMessage"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+                Exit
             }
             $FirstRow = Get-Content $SamFile.FullName | Select-Object -First 1
             $SamdVersionText = $FirstRow | ForEach-Object { $_.split('"')[3] }
