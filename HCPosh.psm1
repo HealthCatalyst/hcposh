@@ -77,11 +77,6 @@ function HCPosh {
         [string]$OutDir,
         [Parameter(ParameterSetName = 'Data', Mandatory = $True)]
         [switch]$Data,
-        <#
-		[Parameter(ParameterSetName = 'Data')]
-		[Parameter(ParameterSetName = 'Docs')]
-		[switch]$Force,
-		#>
         [Parameter(ParameterSetName = 'Data')]
         [Parameter(ParameterSetName = 'Docs')]
         [switch]$OutVar,
@@ -136,7 +131,7 @@ function HCPosh {
                 }
             }
             'SqlParser' {
-                Split-Sql -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
+                Invoke-SqlParser -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
             }
             'Data' {
                 $Files = Get-ChildItem | Where-Object Extension -eq '.hcx'
@@ -152,18 +147,18 @@ function HCPosh {
 				
                 if ($OutVar) {
                     if ($Raw) {
-                        ($Pipe | Get-Metadata_Raw | Select-Object MetadataRaw).MetadataRaw
+                        ($Pipe | Invoke-DataRaw | Select-Object MetadataRaw).MetadataRaw
                     }
                     else {
-                        ($Pipe | Get-Metadata_Raw | Get-Metadata_New | Select-Object MetadataNew).MetadataNew
+                        ($Pipe | Invoke-DataRaw | Invoke-DataNew | Select-Object MetadataNew).MetadataNew
                     }
                 }
                 else {
                     if ($Raw) {
-                        $Pipe | Get-Metadata_Raw | Out-Null
+                        $Pipe | Invoke-DataRaw | Out-Null
                     }
                     else {
-                        $Pipe | Get-Metadata_Raw | Get-Metadata_New | Out-Null
+                        $Pipe | Invoke-DataRaw | Invoke-DataNew | Out-Null
                     }
                 }
             }
@@ -176,18 +171,18 @@ function HCPosh {
                     $NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
                     if ($OutZip) {
                         if ($OutVar) {
-                            (Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
+                            (Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
                         }
                         else {
-                            Get-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
+                            Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
                         }
                     }
                     else {
                         if ($OutVar) {
-                            (Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Select-Object DocsData).DocsData
+                            (Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir | Select-Object DocsData).DocsData
                         }
                         else {
-                            Get-Docs -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+                            Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir | Out-Null
                         }
                     }
                 }
@@ -205,10 +200,10 @@ function HCPosh {
                 forEach ($DocsData in $DocsDataArr) {
                     $NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
                     if ($OutZip) {
-                        Get-Diagrams -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
+                        Invoke-Diagrams -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
                     }
                     else {
-                        Get-Diagrams -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+                        Invoke-Diagrams -DocsData $DocsData -OutDir $NewOutDir | Out-Null
                     }
                 }
             }

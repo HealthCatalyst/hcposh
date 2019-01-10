@@ -11,18 +11,6 @@ function Invoke-ImpactAnalysis {
         [string]$OutDir = "./_impact"
     )
     begin {
-        function New-EmptyFile ($OutFile) {
-            try {
-                if (Test-Path $OutFile) {
-                    Remove-Item $OutFile -Force | Out-Null
-                }
-                New-Item -ItemType File -Force -Path $OutFile -ErrorAction Stop | Out-Null
-            }
-            catch {
-                $Msg = "$(" " * 4)Unable to create output directory (""$(Split-Path $OutDir -Leaf)"")"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
-            }
-        }
-        
         $Msg = "Impact analysis [$($Server)]"; Write-Host $Msg -ForegroundColor Magenta; Write-Verbose $Msg; Write-Log $Msg;
         if (!(Test-Path $ConfigPath)) {
             $Msg = "$(" " * 4)Unable to find configuration file in current directory or specified path"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
@@ -30,10 +18,10 @@ function Invoke-ImpactAnalysis {
             while ('y', 'n' -notcontains $TemplateFlag)
             
             if ($TemplateFlag -eq 'y') {
-                New-EmptyFile './_impactConfig.json'; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
-                New-EmptyFile './columns.sql'; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
-                New-EmptyFile './mappings.csv'; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
-                New-EmptyFile './queries.sql'; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
+                New-Directory -Dir './_impactConfig.json' -Force; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
+                New-Directory -Dir './columns.sql' -Force; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
+                New-Directory -Dir './mappings.csv' -Force; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
+                New-Directory -Dir './queries.sql' -Force; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
                 
                 $Msg = "Configuration files created, rerun when you are ready.`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
             }
@@ -265,7 +253,7 @@ function Invoke-ImpactAnalysis {
                     $Msg = "$(" " * 8)$(("{0:P0}" -f ($J/$Total)).PadLeft(5)) $($J.ToString().PadLeft($Total.ToString().Length))/$($Total) ...parsing..."; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
                 }
                 $Q = $True;
-                $ParsedTables = $(Split-Sql -Query $Query.'$Query' -Log $False -SelectStar $False -Brackets $False)
+                $ParsedTables = $(Invoke-SqlParser -Query $Query.'$Query' -Log $False -SelectStar $False -Brackets $False)
                 
                 foreach ($ParsedTable in $ParsedTables) {
                     foreach ($ParsedColumn in $ParsedTable.Columns) {

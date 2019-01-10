@@ -1,4 +1,4 @@
-function Split-Sql {
+function Invoke-SqlParser {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $True)]

@@ -1,4 +1,4 @@
-function Get-Metadata_New {
+function Invoke-DataNew {
     [CmdletBinding()]
     [OutputType([PSObject])]
     param
@@ -130,7 +130,7 @@ function Get-Metadata_New {
         $Msg = "$(" " * 4)Parsing tables and columns from sql..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
         foreach ($HCEntity in $MetadataNew.Entities) {
             foreach ($HCBinding in $HCEntity.Bindings) {
-                $SourcedByEntities = $(Split-Sql -Query $HCBinding.UserDefinedSQL -Log $False -SelectStar $False -Brackets $False)
+                $SourcedByEntities = $(Invoke-SqlParser -Query $HCBinding.UserDefinedSQL -Log $False -SelectStar $False -Brackets $False)
                 
                 foreach ($SourcedByEntity in $SourcedByEntities | Where-Object { $_.DatabaseNM -and $_.SchemaNM -and $_.TableNM }) {
                     $HCSourcedByEntity = New-HCEmptySourcedByEntityObject

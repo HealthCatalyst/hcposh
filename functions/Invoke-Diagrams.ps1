@@ -1,4 +1,4 @@
-function Get-Diagrams {
+function Invoke-Diagrams {
     param
     (
         [Parameter(Mandatory = $True)]

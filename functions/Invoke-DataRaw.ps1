@@ -1,4 +1,4 @@
-function Get-Metadata_Raw {
+function Invoke-DataRaw {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
@@ -6,49 +6,7 @@ function Get-Metadata_Raw {
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
         [string]$OutDir
     )
-    begin {
-        function ParseItem($jsonItem) {
-            if ($jsonItem.PSObject.TypeNames -match 'Array') {
-                return ParseJsonArray($jsonItem)
-            }
-            elseif ($jsonItem.PSObject.TypeNames -match 'Dictionary') {
-                return ParseJsonObject([HashTable]$jsonItem)
-            }
-            else {
-                return $jsonItem
-            }
-        }
-        
-        function ParseJsonObject($jsonObj) {
-            $result = New-Object -TypeName PSCustomObject
-            foreach ($key in $jsonObj.Keys) {
-                $item = $jsonObj[$key]
-                if ($item) {
-                    $parsedItem = ParseItem $item
-                }
-                else {
-                    $parsedItem = $null
-                }
-                $result | Add-Member -MemberType NoteProperty -Name $key -Value $parsedItem
-            }
-            return $result
-        }
-        
-        function ParseJsonArray($jsonArray) {
-            $result = @()
-            $jsonArray | ForEach-Object -Process {
-                $result += , (ParseItem $_)
-            }
-            return $result
-        }
-        
-        function ParseJsonString($json) {
-            $config = $javaScriptSerializer.DeserializeObject($json)
-            return ParseJsonObject($config)
-        }
-    }
     process {
-        #$OutDirFilePath = "$($OutDir)\metadata_raw.json"
         try {
             Test-Path $File | Out-Null;
             $InputFile = Get-Item $File
@@ -106,7 +64,7 @@ function Get-Metadata_Raw {
             catch {
                 # if the json object is too large; then attempt to parse json using dot net assemblies
                 [void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
-                $MetadataRaw = ParseItem ((New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer -Property @{ MaxJsonLength = [int]::MaxValue; RecursionLimit = [int]::MaxValue }).DeserializeObject($RawContent))
+                $MetadataRaw = Split-LargeJsonItem ((New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer -Property @{ MaxJsonLength = [int]::MaxValue; RecursionLimit = [int]::MaxValue }).DeserializeObject($RawContent))
             }
             $FirstRow = Get-Content $SamFile.FullName | Select-Object -First 1
             $SamdVersionText = $FirstRow | ForEach-Object { $_.split('"')[3] }
