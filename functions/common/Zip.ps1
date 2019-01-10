@@ -7,5 +7,12 @@ function Zip {
         [Parameter(Position = 1, Mandatory = $True)]
         [string] $Destination
     )
-    [System.IO.Compression.ZipFile]::CreateFromDirectory($Directory, $Destination, 'Optimal', $true);
+    try {
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($Directory, $Destination, 'Optimal', $true);
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        $Msg = "$(" " * 8)An error occurred while trying to zip a file :( --> $ErrorMessage"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+        Exit
+    }
 }
