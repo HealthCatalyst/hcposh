@@ -30,52 +30,151 @@ function Invoke-DataNew {
         $MetadataNew.SAMDVersionText<#extension#> = $MetadataRaw.SAMDVersionText
         $MetadataNew._hcposh<#extension#> = $MetadataRaw._hcposh
         #endregion
-        #region ENTITIES
         
-        #Grab bindings that only have references to entities
-        $RefBindings = New-Object PSObject;
-        Foreach ($RefBinding in $MetadataRaw.Bindings | Where-Object { $_.DestinationEntity.'$Ref' }) {
-            if (!$RefBindings."$($RefBinding.DestinationEntity.'$Ref')") {
-                $RefBindings | Add-Member -Type NoteProperty -Name "$($RefBinding.DestinationEntity.'$Ref')" -Value @()
+        #region ENTITIES        
+        foreach ($Entity in $MetadataRaw.Tables.GetEnumerator()) {
+            $HCEntity = New-HCEmptyEntityObject
+            #region GENERAL PROPS
+            $HCEntity.ContentId = $Entity.ContentId
+            $HCEntity.DescriptionTXT = $Entity.DescriptionTXT
+            $HCEntity.DatabaseNM = $Entity.DatabaseNM
+            $HCEntity.SchemaNM = $Entity.SchemaNM
+            $HCEntity.TableNM = $Entity.TableNM
+            $HCEntity.TableTypeNM = $Entity.TableTypeNM
+            $HCEntity.ViewName = $Entity.ViewName
+            $HCEntity.LoadType = $Entity.LoadType
+            $HCEntity.LastModifiedTimestamp = $Entity.LastModifiedTimestamp
+            $HCEntity.IsPersisted = $Entity.IsPersisted
+            $HCEntity.IsPublic = $Entity.IsPublic
+            $IsUniversal = $Entity.AttributeValues | Where-Object AttributeName -eq 'IsUniversal'
+            if ($IsUniversal) {
+                $HCEntity | Add-Member -Type NoteProperty -Name IsUniversal -Value $([System.Convert]::ToBoolean($IsUniversal.TextValue))
             }
-            $RefBindings."$($RefBinding.DestinationEntity.'$Ref')" += $RefBinding
-        }
-        
-        Foreach ($Binding in $MetadataRaw.Bindings | Where-Object { $_.ContentId }) {
-            $Bindings = @()
-            $Bindings += $Binding
-            
-            Foreach ($AnotherBinding in $Binding.DestinationEntity.FedByBindings | Where-Object { $_.ContentId }) {
-                $Bindings += $AnotherBinding
+            #endregion
+            #region PROTECTION PROPS
+            $IsProtected = $Entity.AttributeValues | Where-Object AttributeName -eq 'IsProtected'
+            if ($IsProtected) {
+                #New attributes introduced with CAP 4.0
+                $HCEntity | Add-Member -Type NoteProperty -Name IsProtected -Value $([System.Convert]::ToBoolean($IsProtected.TextValue))
             }
-            
-            foreach ($Entity in $Binding.DestinationEntity | Where-Object { $_.ContentId }) {
-                if ($RefBindings."$($Entity.'$id')") {
-                    $Bindings += $RefBindings."$($Entity.'$id')";
+            #endregion
+            #region FULLYQUALIFIEDNAME PROPS
+            $HCFullyQualifiedName = New-HCEmptyFullyQualifiedNameObject
+            $HCFullyQualifiedName.Table = "$($Entity.DatabaseNM).$($Entity.SchemaNM).$($Entity.TableNM)"
+            $HCFullyQualifiedName.View = "$($Entity.DatabaseNM).$($Entity.SchemaNM).$($Entity.ViewName)"
+            $HCEntity.FullyQualifiedNames = $HCFullyQualifiedName
+            #endregion
+            #region COLUMN PROPS
+            foreach ($Column in $Entity.Columns.GetEnumerator()) {
+                $HCColumn = New-HCEmptyColumnObject
+                $HCColumn.ContentId = $Column.ContentId
+                $HCColumn.ColumnNM = $Column.ColumnNM
+                $HCColumn.DataSensitivityCD = $Column.DataSensitivityCD
+                $HCColumn.DataTypeDSC = $Column.DataTypeDSC
+                $HCColumn.DescriptionTXT = $Column.DescriptionTXT
+                $HCColumn.IsIncrementalColumnValue = $Column.IsIncrementalColumnValue
+                $HCColumn.IsSystemColumnValue = $Column.IsSystemColumnValue
+                $HCColumn.IsNullableValue = $Column.IsNullableValue
+                $HCColumn.IsPrimaryKeyValue = $Column.IsPrimaryKeyValue
+                $HCColumn.Ordinal = $Column.Ordinal
+                $HCColumn.Status = $Column.Status
+                $HCEntity.Columns += $HCColumn
+            }
+            #endregion
+            #region INDEX PROPS
+            foreach ($Index in $Entity.Indexes.GetEnumerator()) {
+                $HCIndex = New-HCEmptyIndexObject
+                $HCIndex.IndexName = $Index.IndexName
+                $HCIndex.IndexTypeCode = $Index.IndexTypeCode
+                $HCIndex.IsActive = $Index.IsActive
+                    
+                foreach ($IndexColumn in $Index.IndexColumns.GetEnumerator()) {
+                    $HCIndexColumn = New-HCEmptyIndexColumnObject
+                    $HCIndexColumn.Ordinal = $IndexColumn.Ordinal
+                    $HCIndexColumn.ColumnNM = $IndexColumn.Column.ColumnNM
+                    $HCIndexColumn.IsCovering = $IndexColumn.IsCovering
+                    $HCIndexColumn.IsDescending = $IndexColumn.IsDescending                        
+                    $HCIndex.IndexColumns += $HCIndexColumn
                 }
-                $MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings
+                    
+                $HCEntity.Indexes += $HCIndex
             }
-        }
-        
-        
-        foreach ($Entity in $MetadataRaw.BatchDefinitions.Tables | Where-Object { $_.ContentId }) {
-            $Bindings = @()
-            foreach ($Binding in $Entity.FedByBindings | Where-Object { $_.ContentId }) {
-                $Bindings += $Binding
+            #endregion
+            #region BINDING PROPS
+            foreach ($Binding in $Entity.FedByBindings.GetEnumerator()) {
+                $HCBinding = New-HCEmptyBindingObject
+                $HCBinding.ContentId = $Binding.ContentId
+                $HCBinding.BindingName = $Binding.BindingName
+                $HCBinding.BindingNameNoSpaces = (Get-CleanFileName -Name $Binding.BindingName -RemoveSpace)
+                $HCBinding.BindingStatus = $Binding.BindingStatus
+                $HCBinding.BindingDescription = $Binding.BindingDescription
+                $HCBinding.ClassificationCode = $Binding.ClassificationCode
+                $HCBinding.GrainName = $Binding.GrainName
+                $HCBinding.UserDefinedSQL = $Binding.UserDefinedSQL
+                #New attributes introduced with CAP 4.0
+                $IsProtected = $Binding.AttributeValues | Where-Object AttributeName -eq 'IsProtected'
+                if ($IsProtected) {
+                    $HCBinding | Add-Member -Type NoteProperty -Name IsProtected -Value $([System.Convert]::ToBoolean($IsProtected.TextValue))
+                }
+                $LoadType = if ($Binding.LoadType) { $Binding.LoadType } else { $HCEntity.LoadType }
+                if ($LoadType) {
+                    $HCBinding | Add-Member -Type NoteProperty -Name LoadType -Value $LoadType
+                        
+                    if ($Binding.IncrementalConfigurations) {
+                        $HCBinding | Add-Member -Type NoteProperty -Name IncrementalConfigurations -Value @()
+                            
+                        foreach ($IncrementalConfiguration in $Binding.IncrementalConfigurations.GetEnumerator()) {
+                            $HCIncrementalConfiguration = New-HCEmptyIncrementalConfigurationObject
+                            $HCIncrementalConfiguration.IncrementalColumnName = $IncrementalConfiguration.IncrementalColumnName
+                            $HCIncrementalConfiguration.OverlapNumber = $IncrementalConfiguration.OverlapNumber
+                            $HCIncrementalConfiguration.OverlapType = $IncrementalConfiguration.OverlapType
+                            $HCIncrementalConfiguration.SourceDatabaseName = $IncrementalConfiguration.SourceDatabaseName
+                            $HCIncrementalConfiguration.SourceSchemaName = $IncrementalConfiguration.SourceSchemaName
+                            $HCIncrementalConfiguration.SourceTableAlias = $IncrementalConfiguration.SourceTableAlias
+                            $HCIncrementalConfiguration.SourceTableName = $IncrementalConfiguration.SourceTableName
+                                
+                            $HCBinding.IncrementalConfigurations += $HCIncrementalConfiguration
+                        }
+                    }
+                }
+                $HCEntity.Bindings += $HCBinding
             }
-            $MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings
-        }
-        
-        foreach ($Entity in $MetadataRaw.Tables | Where-Object { $_.ContentId }) {
-            $Bindings = @()
-            foreach ($Binding in $Entity.FedByBindings | Where-Object { $_.ContentId }) {
-                $Bindings += $Binding
+            #endregion
+            #region EXTENSION PROPS
+            $ExtensionContentIds = New-HCEmptyExtensionContentIdsObject
+            if ($Entity.ParentEntityRelationships.Count -or $Entity.ChildEntityRelationships.Count) {
+                $HCEntity | Add-Member -Type NoteProperty -Name IsExtended -Value $true -Force
+                $HCEntity | Add-Member -Type NoteProperty -Name ExtensionContentIds -Value $ExtensionContentIds -Force
             }
-            $MetadataNew.Entities += New-HCEntityObject -Entity $Entity -Bindings $Bindings -ClassificationCode 'DataEntry'
-        }
-        
-        
-        #Update extension entities
+            if ($Entity.ParentEntityRelationships.Count) {
+                $HCEntity.ExtensionContentIds.CoreEntity = $Entity.ContentId
+                foreach ($Relationship in $Entity.ParentEntityRelationships.GetEnumerator()) {
+                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId
+                }
+            }
+            if ($Entity.ChildEntityRelationships.Count) {
+                $HCEntity.ExtensionContentIds."$($Entity.ChildEntityRelationships.ChildRoleName)" = $Entity.ChildEntityRelationships.ChildEntity.ContentId
+                foreach ($Relationship in $Entity.ChildEntityRelationships.ParentEntity.ParentEntityRelationships.GetEnumerator()) {
+                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId
+                    $HCEntity.ExtensionContentIds."$($Relationship.ParentRoleName)" = $Relationship.ParentEntity.ContentId
+                }
+            }
+            #endregion
+            #region CUSTOM GROUP PROPS
+            $HCEntity.EntityGroupNM = $HCEntity.Bindings[0].GrainName #Set the EntityGroupNM to the first Grain name for now // not a perfect solution
+            if ($HCEntity.Bindings) {
+                $HCEntity.ClassificationCode = $HCEntity.Bindings[0].ClassificationCode #Set the ClassificationCode to the first ClassificationCode for now // not a perfect solution
+            }
+            if ($Entity.AllowsDataEntry -eq $true) {
+                $HCEntity.ClassificationCode = 'DataEntry'
+            }
+            #endregion
+
+            $MetadataNew.Entities += $HCEntity
+        }        
+        #endregion
+
+        #region Update extension entity classification
         foreach ($Extension in $MetadataNew.Entities | Where-Object { ($_.ExtensionContentIds.PsObject.Properties.Value | Measure-Object).Count -eq 3 }) {
             foreach ($property in $Extension.ExtensionContentIds.PsObject.Properties) {
                 $Entity = $MetadataNew.Entities[$MetadataNew.Entities.ContentId.IndexOf($property.Value)];
@@ -84,21 +183,19 @@ function Invoke-DataNew {
                 if ($property.Name -eq "OverridingExtensionView") {
                     $Entity.ClassificationCode = "OverridingExtensionView";
                 }
-                elseif ($property.Name -ne "CoreEntity") {
+                elseif ($property.Name -ne "CoreEntity" -and $Entity.ClassificationCode -notmatch "-") {
                     $Entity.ClassificationCode = "$($Entity.ClassificationCode)-Extension"
                 }
                 foreach ($Binding in $Entity.Bindings) {
                     $Binding.ClassificationCode = $Entity.ClassificationCode;
                 }
             }
-        }							
+        }
         #endregion
         
         $MetadataNew.MaxLastModifiedTimestamp<#extension#> = ($MetadataNew.Entities.LastModifiedTimestamp | Measure-Object -Maximum).Maximum
-        
         $Msg = "$(" " * 8)$(($MetadataNew.Entities | Measure-Object).Count) - Entities"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
         $Msg = "$(" " * 8)$(($MetadataNew.Entities.Bindings | Measure-Object).Count) - Bindings"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
-        #endregion
         
         #region ADD DATA ENTRY DATA
         if ($MetadataRaw.DataEntryData) {
@@ -343,7 +440,7 @@ function Invoke-DataNew {
         }
         #endregion
         
-        
+       
         $Msg = "Success!`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
         $Output = New-Object PSObject
         $Output | Add-Member -Type NoteProperty -Name MetadataNew -Value $MetadataNew

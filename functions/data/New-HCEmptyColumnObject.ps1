@@ -11,7 +11,6 @@ function New-HCEmptyColumnObject {
     $Column | Add-Member -Type NoteProperty -Name IsPrimaryKeyValue -Value $Null
     $Column | Add-Member -Type NoteProperty -Name Ordinal -Value $Null
     $Column | Add-Member -Type NoteProperty -Name Status -Value $Null
-    $Column | Add-Member -Type NoteProperty -Name ColumnGroupNM -Value $Null
     
     return $Column
 }
