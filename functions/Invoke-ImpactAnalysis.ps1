@@ -6,9 +6,9 @@ function Invoke-ImpactAnalysis {
         [Parameter(Mandatory = $True)]
         [string]$Server,
         [Parameter(Mandatory = $False)]
-        [string]$ConfigPath = "./_impactConfig.json",
+        [string]$ConfigPath = ".\_impactConfig.json",
         [Parameter(Mandatory = $False)]
-        [string]$OutDir = "./_impact"
+        [string]$OutDir = ".\_impact"        
     )
     begin {
         $Msg = "Impact analysis [$($Server)]"; Write-Host $Msg -ForegroundColor Magenta; Write-Verbose $Msg; Write-Log $Msg;
@@ -18,10 +18,10 @@ function Invoke-ImpactAnalysis {
             while ('y', 'n' -notcontains $TemplateFlag)
             
             if ($TemplateFlag -eq 'y') {
-                New-Directory -Dir './_impactConfig.json' -Force; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
-                New-Directory -Dir './columns.sql' -Force; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
-                New-Directory -Dir './mappings.csv' -Force; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
-                New-Directory -Dir './queries.sql' -Force; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
+                New-EmptyFile './_impactConfig.json'; Add-Content ./_impactConfig.json "{`n  ""Columns"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./columns.sql""`n    }`n  },`n  ""Queries"": {`n    ""SQL"": {`n      ""Connection"": {`n        ""Database"": ""<database>""`n      },`n      ""FilePath"": ""./queries.sql""`n    }`n  },`n  ""Mappings"": {`n    ""CSV"": {`n      ""FilePath"": ""./mappings.csv""`n    }`n  }`n}";
+                New-EmptyFile './columns.sql'; Add-Content ./columns.sql "SELECT`n   /******REQUIRED******/`n    tbl.DatabaseNM`n   ,tbl.SchemaNM`n   ,tbl.TableNM`n   ,col.ColumnNM`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,Grouper1NM?`n   ,Grouper2NM?`n   */`nFROM CatalystAdmin.TableBASE AS tbl`nINNER JOIN CatalystAdmin.DatamartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nINNER JOIN CatalystAdmin.ColumnBASE AS col`n   ON col.TableID = tbl.TableID`n      AND col.IsSystemColumnFLG = 'N'`nWHERE dm.DatamartNM = '<MY_DATAMART>'`n      AND tbl.PublicFLG = 1;"
+                New-EmptyFile './mappings.csv'; '' | Select-Object FromDatabaseNM, FromSchemaNM, FromTableNM, FromColumnNM, ToDatabaseNM, ToSchemaNM, ToTableNM, ToColumnNM | Export-Csv './mappings.csv' -NoTypeInformation
+                New-EmptyFile './queries.sql'; Add-Content ./queries.sql "SELECT`n   /******REQUIRED******/`n    obj.AttributeValueLongTXT AS QueryTXT`n   /********************/`n   /* ADD ANY OTHER GROUPERS YOU NEED`n   ,tbl.ViewNM+' ('+b.BindingNM+')' AS QueryNM`n   ,'SAM Designer' AS Grouper1NM`n   ,dm.DatamartNM AS Grouper2NM`n   */`nFROM CatalystAdmin.ObjectAttributeBASE AS obj`nINNER JOIN CatalystAdmin.BindingBASE AS b`n   ON b.BindingID = obj.ObjectID`nINNER JOIN CatalystAdmin.TableBASE AS tbl`n   ON tbl.TableID = b.DestinationEntityID`nINNER JOIN CatalystAdmin.DataMartBASE AS dm`n   ON dm.DatamartID = tbl.DatamartID`nWHERE obj.ObjectTypeCD = 'Binding'`n      AND obj.AttributeNM = 'UserDefinedSQL'`n      AND b.BindingClassificationCD != 'SourceMart'`n      AND LEN(obj.AttributeValueLongTXT) > 0`n      AND tbl.TableID NOT IN`n(`n SELECT`n     tbl.TableID`n FROM CatalystAdmin.TableBASE AS tbl`n INNER JOIN CatalystAdmin.DatamartBASE AS dm`n    ON dm.DatamartID = tbl.DatamartID`n WHERE dm.DatamartNM = '<MY_DATAMART>'`n);"
                 
                 $Msg = "Configuration files created, rerun when you are ready.`r`n"; Write-Host $Msg -ForegroundColor Green; Write-Verbose $Msg; Write-Log $Msg;
             }
@@ -92,7 +92,7 @@ function Invoke-ImpactAnalysis {
                             foreach ($Column in $Columns) {
                                 $Fqn = "$($Column.DatabaseNM.ToLower()).$($Column.SchemaNM.ToLower()).$($Column.TableNM.ToLower() -replace 'base$', '').$($Column.ColumnNM.ToLower())"
                                 $UpdatedColumn = New-Object PSObject
-                                $UpdatedColumn | Add-Member -Type NoteProperty -Name `$ColumnId -Value $I
+                                $UpdatedColumn | Add-Member -Type NoteProperty -Name `$ColumnId -Value $I.ToString()
                                 $UpdatedColumn | Add-Member -Type NoteProperty -Name `$Fqn -Value $Fqn
                                 $UpdatedColumn | Add-Member -Type NoteProperty -Name `$Queries -Value @()
                                 if ($MappingsFlag) {
@@ -148,7 +148,7 @@ function Invoke-ImpactAnalysis {
                             $UpdatedQueries = @()
                             foreach ($Query in $Queries) {
                                 $UpdatedQuery = New-Object PSObject
-                                $UpdatedQuery | Add-Member -Type NoteProperty -Name `$QueryId -Value $I
+                                $UpdatedQuery | Add-Member -Type NoteProperty -Name `$QueryId -Value $I.ToString()
                                 $UpdatedQuery | Add-Member -Type NoteProperty -Name `$Query -Value $Query.querytxt
                                 $UpdatedQuery | Add-Member -Type NoteProperty -Name `$Columns -Value @()
                                 foreach ($Property in $Properties | Where-Object { $_.ToLower() -ne 'querytxt' }) {
