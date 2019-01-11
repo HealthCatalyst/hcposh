@@ -105,10 +105,11 @@ function HCPosh {
 	
     begin {
         # Get function definition files.
-        $functions = @( Get-ChildItem -Path $PSScriptRoot\functions -Recurse -Filter *.ps1 -ErrorAction SilentlyContinue )
+        $functions = @( Get-ChildItem -Path $PSScriptRoot\functions -Filter *.ps1 -ErrorAction SilentlyContinue )
+        $common = @( Get-ChildItem -Path $PSScriptRoot\functions\common -Filter *.ps1 -ErrorAction SilentlyContinue )
 
         # Dot source the files
-        foreach ($import in @($functions)) {
+        foreach ($import in @($functions + $common)) {
             try {
                 . $import.fullname
             }
@@ -166,23 +167,23 @@ function HCPosh {
                 if (!$OutDir) {
                     $OutDir = (Get-Location).Path + '\_hcposh_docs'
                 }
-                $DataArr = HCPosh -Data -OutVar -NoSplit | Where-Object { $_ };
-                forEach ($Data in $DataArr) {
-                    $NewOutDir = $OutDir + '\' + $Data._hcposh.FileBaseName
+                $OutDataArray = HCPosh -Data -OutVar -NoSplit | Where-Object { $_ };
+                forEach ($OutData in $OutDataArray) {
+                    $NewOutDir = $OutDir + '\' + $OutData._hcposh.FileBaseName
                     if ($OutZip) {
                         if ($OutVar) {
-                            (Invoke-Docs -Data $Data -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
+                            (Invoke-Docs -Data $OutData -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
                         }
                         else {
-                            Invoke-Docs -Data $Data -OutDir $NewOutDir -OutZip | Out-Null
+                            Invoke-Docs -Data $OutData -OutDir $NewOutDir -OutZip | Out-Null
                         }
                     }
                     else {
                         if ($OutVar) {
-                            (Invoke-Docs -Data $Data -OutDir $NewOutDir | Select-Object DocsData).DocsData
+                            (Invoke-Docs -Data $OutData -OutDir $NewOutDir | Select-Object DocsData).DocsData
                         }
                         else {
-                            Invoke-Docs -Data $Data -OutDir $NewOutDir | Out-Null
+                            Invoke-Docs -Data $OutData -OutDir $NewOutDir | Out-Null
                         }
                     }
                 }
@@ -192,18 +193,18 @@ function HCPosh {
                     $OutDir = (Get-Location).Path + '\_hcposh_diagrams'
                 }
                 if ($OutZip) {
-                    $DataArr = HCPosh -Docs -OutVar -OutDir $OutDir -OutZip | Where-Object { $_ };
+                    $OutDataArray = HCPosh -Docs -OutVar -OutDir $OutDir -OutZip | Where-Object { $_ };
                 }
                 else {
-                    $DataArr = HCPosh -Docs -OutVar -OutDir $OutDir | Where-Object { $_ };
+                    $OutDataArray = HCPosh -Docs -OutVar -OutDir $OutDir | Where-Object { $_ };
                 }
-                forEach ($Data in $DataArr) {
-                    $NewOutDir = $OutDir + '\' + $Data._hcposh.FileBaseName
+                forEach ($OutData in $OutDataArray) {
+                    $NewOutDir = $OutDir + '\' + $OutData._hcposh.FileBaseName
                     if ($OutZip) {
-                        Invoke-Diagrams -DocsData $Data -OutDir $NewOutDir -OutZip | Out-Null
+                        Invoke-Diagrams -DocsData $OutData -OutDir $NewOutDir -OutZip | Out-Null
                     }
                     else {
-                        Invoke-Diagrams -DocsData $Data -OutDir $NewOutDir | Out-Null
+                        Invoke-Diagrams -DocsData $OutData -OutDir $NewOutDir | Out-Null
                     }
                 }
             }
