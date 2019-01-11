@@ -57,12 +57,12 @@ function Invoke-DataRaw {
                 }
             }
             
-            $RawContent = Get-Content $SamFile.FullName | Select-Object -Skip 1
+            $RawContent = (Get-Content $SamFile.FullName | Select-Object -Skip 1);
             try {
                 $jsonSettings = New-Object Newtonsoft.Json.JsonSerializerSettings
                 $jsonSettings.TypeNameHandling = 'Objects'
                 $jsonSettings.PreserveReferencesHandling = 'Objects'
-                $MetadataRaw = [Newtonsoft.Json.JsonConvert]::DeserializeObject($RawContent, $jsonSettings)
+                $RawData = [Newtonsoft.Json.JsonConvert]::DeserializeObject($RawContent, $jsonSettings)
             }
             catch {
                 $ErrorMessage = $_.Exception.Message
@@ -72,16 +72,16 @@ function Invoke-DataRaw {
             $FirstRow = Get-Content $SamFile.FullName | Select-Object -First 1
             $SamdVersionText = $FirstRow | ForEach-Object { $_.split('"')[3] }
             if ($SamdVersionText) {
-                $MetadataRaw | Add-Member -Type NoteProperty -Name SAMDVersionText -Value $SamdVersionText
+                $RawData | Add-Member -Type NoteProperty -Name SAMDVersionText -Value $SamdVersionText
             }
             else {
                 $Msg = "$(" " * 8)Unable to parse Sam Designer Version."; Write-Host $Msg -ForegroundColor Yellow; Write-Verbose $Msg; Write-Log $Msg 'warning';
             }
             if ($CsvFiles) {
                 $Msg = "$(" " * 4)Found $($CsvFiles.Count) data entry entity file(s)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-                $MetadataRaw | Add-Member -Type NoteProperty -Name DataEntryData -Value $CsvArray
+                $RawData | Add-Member -Type NoteProperty -Name DataEntryData -Value $CsvArray
             }
-            $MetadataRaw | Add-Member -Type NoteProperty -Name _hcposh -Value (New-Object PSObject -Property @{ FileBaseName = $InputFile.BaseName; LastWriteTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.ffffff") })
+            $RawData | Add-Member -Type NoteProperty -Name _hcposh -Value (New-Object PSObject -Property @{ FileBaseName = $InputFile.BaseName; LastWriteTime = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.ffffff") })
             $Msg = "$(" " * 8)Converted from json to psobject"; Write-Host $Msg -ForegroundColor White; Write-Verbose $Msg; Write-Log $Msg;
             Remove-Item $OutBin -Recurse -Force
         }
@@ -89,8 +89,8 @@ function Invoke-DataRaw {
             $Msg = "$(" " * 8)Unable to get sam content into object."; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
         }
         $Output = New-Object PSObject
-        $Output | Add-Member -Type NoteProperty -Name metadataRaw -Value $MetadataRaw
-        $Output | Add-Member -Type NoteProperty -Name outdir -Value $OutDir
+        $Output | Add-Member -Type NoteProperty -Name RawData -Value $RawData
+        $Output | Add-Member -Type NoteProperty -Name OutDir -Value $OutDir
         return $Output
     }
 }
