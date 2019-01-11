@@ -60,9 +60,9 @@
 	
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies     = @(
-        'libraries\Newtonsoft.Json.dll', 'libraries\Catalyst.Common.dll', 'libraries\Catalyst.Platform.CommonExtensions.dll',
-        'libraries\Catalyst.Data.dll', 'libraries\ColumnExtractor.dll', 'libraries\Microsoft.SqlServer.TransactSql.ScriptDom.dll',
-        'libraries\System.IO.Compression.FileSystem.dll'
+        'Newtonsoft.Json.dll', 'Catalyst.Common.dll', 'Catalyst.Platform.CommonExtensions.dll',
+        'Catalyst.Data.dll', 'ColumnExtractor.dll', 'Microsoft.SqlServer.TransactSql.ScriptDom.dll',
+        'System.IO.Compression.FileSystem.dll'
     )
 	
     # Script files (.ps1) that are run in the caller's environment prior to

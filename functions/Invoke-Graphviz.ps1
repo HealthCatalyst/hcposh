@@ -11,7 +11,7 @@ function Invoke-Graphviz {
     )
     process {
         try {
-            $Graphviz = ".""$((Get-Item $PSScriptRoot).Parent.FullName)\libraries\graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
+            $Graphviz = ".""$((Get-Item $PSScriptRoot).Parent.FullName)\graphviz\dot.exe"" -T$($OutType) ""$($File)"" -o ""$($OutFile)"" -q"
         }
         catch {
             $Msg = "Unable to find the graphviz dot.exe"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
