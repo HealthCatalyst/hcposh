@@ -3,7 +3,7 @@ function Split-ObjectToFiles {
     param
     (
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
-        [psobject]$MetadataNew,
+        [psobject]$Data,
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
         [string]$SplitDirectory
     )
@@ -15,12 +15,12 @@ function Split-ObjectToFiles {
             #region CREATE DATAMART FILES
             $Exclusions = @('DatamartNoSpacesNM', 'Entities', 'SourcedByEntities', '_hcposh', 'MaxLastModifiedTimestamp')
             $Out = @()
-            $Props = $MetadataNew.psobject.properties.name | Where-Object { $MetadataNew.$_ }
+            $Props = $Data.psobject.properties.name | Where-Object { $Data.$_ }
             forEach ($Prop in $Props | Where-Object { $_ -NotIn $Exclusions }) {
                 $OutObj = New-EmptyProperty
-                $OutObj.Name = $MetadataNew.DatamartNM
+                $OutObj.Name = $Data.DatamartNM
                 $OutObj.Property = $Prop
-                $OutObj.Value = $MetadataNew."$($OutObj.Property)"
+                $OutObj.Value = $Data."$($OutObj.Property)"
                 if ($OutObj) { $Out += $OutObj }
             }
             $OutFile = "$($SplitDirectory)\_Datamart.csv"
@@ -35,7 +35,7 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE SOURCE FILES
             $SourcedByColumns = @()
-            forEach ($Entity in $MetadataNew.SourcedByEntities | Where-Object TableOrigin -eq 'External' | Sort-Object FullyQualifiedNM) {
+            forEach ($Entity in $Data.SourcedByEntities | Where-Object TableOrigin -eq 'External' | Sort-Object FullyQualifiedNM) {
                 forEach ($Column in $Entity.SourcedByColumns | Sort-Object FullyQualifiedNM) {
                     $SourcedByColumn = New-Object PSObject
                     $SourcedByColumn | Add-Member -Type NoteProperty -Name DatabaseNM -Value $Entity.DatabaseNM
@@ -52,7 +52,7 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE ENTITY FILES
             $Exclusions = @('Bindings', 'Columns', 'Indexes', 'SourcedByEntities', 'FullyQualifiedNames', 'LastModifiedTimestamp', 'DataEntryData', 'OverridingExtensionView')
-            forEach ($Group in $MetadataNew.Entities | Group-Object ClassificationCode) {
+            forEach ($Group in $Data.Entities | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Entity in $Group.Group) {
                     $Props = $Entity.psobject.properties.name | Where-Object { $_ }
@@ -77,7 +77,7 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE BINDING FILES
             $Exclusions = @('BindingNameNoSpaces', 'UserDefinedSQL', 'SourcedByEntities', 'IncrementalConfigurations')
-            forEach ($Group in $MetadataNew.Entities.Bindings | Group-Object ClassificationCode) {
+            forEach ($Group in $Data.Entities.Bindings | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Binding in $Group.Group) {
                     $Props = $Binding.psobject.properties.name | Where-Object { $_ }
@@ -101,14 +101,14 @@ function Split-ObjectToFiles {
             }
             #endregion
             #region CREATE SQL FILES
-            forEach ($Binding in $MetadataNew.Entities.Bindings) {
+            forEach ($Binding in $Data.Entities.Bindings) {
                 $OutFile = "$($SplitDirectory)\SQL-$($Binding.ClassificationCode)-$(Get-CleanFileName $Binding.BindingName -RemoveSpace).sql"
                 $Binding.UserDefinedSQL | Out-File $OutFile -Encoding Default -Force
             }
             #endregion
             #region CREATE COLUMN FILES
             $Exclusions = @('Ordinal')
-            forEach ($Group in $MetadataNew.Entities | Group-Object ClassificationCode) {
+            forEach ($Group in $Data.Entities | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Entity in $Group.Group) {
                     forEach ($Column in $Entity.Columns) {
@@ -135,7 +135,7 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE INDEX FILES
             $Exclusions = @('IndexName')
-            forEach ($Group in $MetadataNew.Entities | Group-Object ClassificationCode) {
+            forEach ($Group in $Data.Entities | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Entity in $Group.Group) {
                     forEach ($Index in $Entity.Indexes) {
@@ -167,7 +167,7 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE INCREMENTAL CONFIG FILES
             $Exclusions = @()
-            forEach ($Group in $MetadataNew.Entities.Bindings | Group-Object ClassificationCode) {
+            forEach ($Group in $Data.Entities.Bindings | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Binding in $Group.Group) {
                     forEach ($Increment in $Binding.IncrementalConfigurations) {
@@ -193,7 +193,7 @@ function Split-ObjectToFiles {
             }
             #endregion
             #region CREATE DATA ENTRY ENTITY FILES
-            ForEach ($Entity in $MetadataNew.Entities | Where-Object { $_.ClassificationCode -eq 'DataEntry' }) {
+            ForEach ($Entity in $Data.Entities | Where-Object { $_.ClassificationCode -eq 'DataEntry' }) {
                 If ($Entity.DataEntryData) {
                     $OutFile = "$($SplitDirectory)\DataEntryData-$(Get-CleanFileName $Entity.DataEntryData.FullyQualifiedNM -RemoveSpace).csv"
                     if ($Entity.DataEntryData.Data_All) {
@@ -203,9 +203,9 @@ function Split-ObjectToFiles {
             }
             #endregion
             #region CREATE ISSUE FILES
-            if (($MetadataNew.Entities.Bindings.SourcedByEntities.SourcedByPossibleColumns | Measure-Object).Count -gt 0) {
+            if (($Data.Entities.Bindings.SourcedByEntities.SourcedByPossibleColumns | Measure-Object).Count -gt 0) {
                 $Out = @()
-                forEach ($Binding in $MetadataNew.Entities.Bindings) {
+                forEach ($Binding in $Data.Entities.Bindings) {
                     forEach ($Issue in $Binding.SourcedByEntities.SourcedByPossibleColumns) {
                         $OutObj = New-EmptyProperty
                         $OutObj.Name = $Binding.BindingName
