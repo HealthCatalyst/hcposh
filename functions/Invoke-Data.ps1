@@ -8,6 +8,20 @@ function Invoke-Data {
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName)]
         [string]$OutDir
     )
+    begin {
+        # Get function definition files.
+        $functions = @( Get-ChildItem -Path "$PSScriptRoot\data" -Filter *.ps1 -ErrorAction SilentlyContinue )
+
+        # Dot source the files
+        foreach ($import in @($functions)) {
+            try {
+                . $import.fullname
+            }
+            catch {
+                Write-Error -Message "Failed to import function $($import.fullname): $_"
+            }
+        }
+    }
     process {
         #$OutDirFilePath = "$($OutDir)\metadata_new.json"
         $SplitDirectory = "$($OutDir)\Datamart"
