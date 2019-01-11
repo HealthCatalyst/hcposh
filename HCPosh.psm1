@@ -1,9 +1,8 @@
 ﻿<#	
 	===========================================================================
-	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2017 v5.4.143
 	 Created on:   	8/8/2017 6:49 PM
 	 Created by:   	spencer.nicol
-	 Organization: 	
+	 Organization: 	Health Catalyst
 	 Filename:     	HCPosh.psm1
 	-------------------------------------------------------------------------
 	 Module Name: HCPosh
