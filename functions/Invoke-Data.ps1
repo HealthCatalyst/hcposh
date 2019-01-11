@@ -16,7 +16,7 @@ function Invoke-Data {
         $Data = New-HCEmptyDatamartObject
         
         #region DATAMART
-        $Data.ContentId = $RawData.ContentId
+        $Data.ContentId = $RawData.ContentId.ToString()
         $Data.DatamartNM = $RawData.DatamartNM
         $Data.DatamartNoSpacesNM = (Get-CleanFileName -Name $RawData.DatamartNM -RemoveSpace)
         $Data.DataMartTypeDSC = $RawData.DataMartTypeDSC
@@ -35,7 +35,7 @@ function Invoke-Data {
         foreach ($Entity in $RawData.Tables.GetEnumerator()) {
             $HCEntity = New-HCEmptyEntityObject
             #region GENERAL PROPS
-            $HCEntity.ContentId = $Entity.ContentId
+            $HCEntity.ContentId = $Entity.ContentId.ToString()
             $HCEntity.DescriptionTXT = $Entity.DescriptionTXT
             $HCEntity.DatabaseNM = $Entity.DatabaseNM
             $HCEntity.SchemaNM = $Entity.SchemaNM
@@ -67,7 +67,7 @@ function Invoke-Data {
             #region COLUMN PROPS
             foreach ($Column in $Entity.Columns.GetEnumerator()) {
                 $HCColumn = New-HCEmptyColumnObject
-                $HCColumn.ContentId = $Column.ContentId
+                $HCColumn.ContentId = $Column.ContentId.ToString()
                 $HCColumn.ColumnNM = $Column.ColumnNM
                 $HCColumn.DataSensitivityCD = $Column.DataSensitivityCD
                 $HCColumn.DataTypeDSC = $Column.DataTypeDSC
@@ -103,7 +103,7 @@ function Invoke-Data {
             #region BINDING PROPS
             foreach ($Binding in $Entity.FedByBindings.GetEnumerator()) {
                 $HCBinding = New-HCEmptyBindingObject
-                $HCBinding.ContentId = $Binding.ContentId
+                $HCBinding.ContentId = $Binding.ContentId.ToString()
                 $HCBinding.BindingName = $Binding.BindingName
                 $HCBinding.BindingNameNoSpaces = (Get-CleanFileName -Name $Binding.BindingName -RemoveSpace)
                 $HCBinding.BindingStatus = $Binding.BindingStatus
@@ -147,16 +147,16 @@ function Invoke-Data {
                 $HCEntity | Add-Member -Type NoteProperty -Name ExtensionContentIds -Value $ExtensionContentIds -Force
             }
             if ($Entity.ParentEntityRelationships.Count) {
-                $HCEntity.ExtensionContentIds.CoreEntity = $Entity.ContentId
+                $HCEntity.ExtensionContentIds.CoreEntity = $Entity.ContentId.ToString()
                 foreach ($Relationship in $Entity.ParentEntityRelationships.GetEnumerator()) {
-                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId
+                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId.ToString()
                 }
             }
             if ($Entity.ChildEntityRelationships.Count) {
-                $HCEntity.ExtensionContentIds."$($Entity.ChildEntityRelationships.ChildRoleName)" = $Entity.ChildEntityRelationships.ChildEntity.ContentId
+                $HCEntity.ExtensionContentIds."$($Entity.ChildEntityRelationships.ChildRoleName)" = $Entity.ChildEntityRelationships.ChildEntity.ContentId.ToString()
                 foreach ($Relationship in $Entity.ChildEntityRelationships.ParentEntity.ParentEntityRelationships.GetEnumerator()) {
-                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId
-                    $HCEntity.ExtensionContentIds."$($Relationship.ParentRoleName)" = $Relationship.ParentEntity.ContentId
+                    $HCEntity.ExtensionContentIds."$($Relationship.ChildRoleName)" = $Relationship.ChildEntity.ContentId.ToString()
+                    $HCEntity.ExtensionContentIds."$($Relationship.ParentRoleName)" = $Relationship.ParentEntity.ContentId.ToString()
                 }
             }
             #endregion
