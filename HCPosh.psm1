@@ -147,10 +147,10 @@ function HCPosh {
 				
                 if ($OutVar) {
                     if ($Raw) {
-                        ($Pipe | Invoke-DataRaw | Select-Object MetadataRaw).MetadataRaw
+                        ($Pipe | Invoke-DataRaw | Select-Object RawData).RawData
                     }
                     else {
-                        ($Pipe | Invoke-DataRaw | Invoke-DataNew | Select-Object MetadataNew).MetadataNew
+                        ($Pipe | Invoke-DataRaw | Invoke-Data | Select-Object Data).Data
                     }
                 }
                 else {
@@ -158,7 +158,7 @@ function HCPosh {
                         $Pipe | Invoke-DataRaw | Out-Null
                     }
                     else {
-                        $Pipe | Invoke-DataRaw | Invoke-DataNew | Out-Null
+                        $Pipe | Invoke-DataRaw | Invoke-Data | Out-Null
                     }
                 }
             }
@@ -166,23 +166,23 @@ function HCPosh {
                 if (!$OutDir) {
                     $OutDir = (Get-Location).Path + '\_hcposh_docs'
                 }
-                $DocsDataArr = HCPosh -Data -OutVar -NoSplit | Where-Object { $_ };
-                forEach ($DocsData in $DocsDataArr) {
-                    $NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
+                $DataArr = HCPosh -Data -OutVar -NoSplit | Where-Object { $_ };
+                forEach ($Data in $DataArr) {
+                    $NewOutDir = $OutDir + '\' + $Data._hcposh.FileBaseName
                     if ($OutZip) {
                         if ($OutVar) {
-                            (Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
+                            (Invoke-Docs -Data $Data -OutDir $NewOutDir -OutZip | Select-Object DocsData).DocsData
                         }
                         else {
-                            Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
+                            Invoke-Docs -Data $Data -OutDir $NewOutDir -OutZip | Out-Null
                         }
                     }
                     else {
                         if ($OutVar) {
-                            (Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir | Select-Object DocsData).DocsData
+                            (Invoke-Docs -Data $Data -OutDir $NewOutDir | Select-Object DocsData).DocsData
                         }
                         else {
-                            Invoke-Docs -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+                            Invoke-Docs -Data $Data -OutDir $NewOutDir | Out-Null
                         }
                     }
                 }
@@ -192,18 +192,18 @@ function HCPosh {
                     $OutDir = (Get-Location).Path + '\_hcposh_diagrams'
                 }
                 if ($OutZip) {
-                    $DocsDataArr = HCPosh -Docs -OutVar -OutDir $OutDir -OutZip | Where-Object { $_ };
+                    $DataArr = HCPosh -Docs -OutVar -OutDir $OutDir -OutZip | Where-Object { $_ };
                 }
                 else {
-                    $DocsDataArr = HCPosh -Docs -OutVar -OutDir $OutDir | Where-Object { $_ };
+                    $DataArr = HCPosh -Docs -OutVar -OutDir $OutDir | Where-Object { $_ };
                 }
-                forEach ($DocsData in $DocsDataArr) {
-                    $NewOutDir = $OutDir + '\' + $DocsData._hcposh.FileBaseName
+                forEach ($Data in $DataArr) {
+                    $NewOutDir = $OutDir + '\' + $Data._hcposh.FileBaseName
                     if ($OutZip) {
-                        Invoke-Diagrams -DocsData $DocsData -OutDir $NewOutDir -OutZip | Out-Null
+                        Invoke-Diagrams -DocsData $Data -OutDir $NewOutDir -OutZip | Out-Null
                     }
                     else {
-                        Invoke-Diagrams -DocsData $DocsData -OutDir $NewOutDir | Out-Null
+                        Invoke-Diagrams -DocsData $Data -OutDir $NewOutDir | Out-Null
                     }
                 }
             }
