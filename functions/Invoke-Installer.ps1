@@ -253,7 +253,7 @@ function Invoke-Installer {
             #$Entity.ContentId = $RawEntity.ContentId
             $Entity.ConnectionId = GetId($RawEntity.DestinationConnection.ContentId)
             $Entity.BusinessDescription = NullableString($RawEntity.DescriptionTXT)
-            $Entity.EntityName = NullableString($RawEntity.TableNM)
+            $Entity.EntityName = NullableString($RawEntity.ViewName)
             $Entity.PersistenceType = "Database"
             $Entity.IsPublic = $RawEntity.IsPublic
             $Entity.AllowsDataEntry = $RawEntity.AllowsDataEntry
@@ -292,7 +292,7 @@ function Invoke-Installer {
                 $AttributeValue.AttributeValue = $RawEntity.FileGroup
                 $Entity.AttributeValues += $AttributeValue
             }
-            if ($RawEntity.IsPersisted) {
+            if (($RawEntity.IsPersisted | Measure-Object).Count) {
                 $AttributeValue = [ObjectAttributeValue]::new()
                 $AttributeValue.AttributeName = "PersistedFlag"
                 $AttributeValue.AttributeValue = (. $RawEntity.IsPersisted) <# takes value True/False and runs the True/False function; which converts to 1/0 #>
@@ -350,8 +350,8 @@ function Invoke-Installer {
                 # $Field.ExampleDataUpdatetimestamp = $RawField.ExampleDataUpdateDate
                 $Field.IsPrimaryKey = $RawField.IsPrimaryKeyValue
                 $Field.IsNullable = $RawField.IsNullableValue
-                $Field.IsAutoIncrement = $RawField.IsIncrementalColumn
-                $Field.ExcludeFromBaseView = $RawField.ExcludeFromBaseView
+                $Field.IsAutoIncrement = $RawField.AutoIncrement
+                $Field.ExcludeFromBaseView = $RawField.ExcludeFromBaseViewValue
                 $Field.IsSystemField = $RawField.IsSystemColumnValue
 
                 foreach ($RawAttributeValue in $RawField.AttributeValues) {
