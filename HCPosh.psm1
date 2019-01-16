@@ -78,11 +78,14 @@ function HCPosh {
         [switch]$Data,
         [Parameter(ParameterSetName = 'Data')]
         [Parameter(ParameterSetName = 'Docs')]
+        [Parameter(ParameterSetName = 'Installer')]
         [switch]$OutVar,
         [Parameter(ParameterSetName = 'Data')]
         [switch]$Raw,
         [Parameter(ParameterSetName = 'Data')]
         [switch]$NoSplit,
+        [Parameter(ParameterSetName = 'Installer')]
+        [switch]$Installer,
         [Parameter(ParameterSetName = 'Docs', Mandatory = $True)]
         [switch]$Docs,
         [Parameter(ParameterSetName = 'Docs')]
@@ -186,6 +189,26 @@ function HCPosh {
                         }
                     }
                 }
+            }
+            'Installer' {
+                $Files = Get-ChildItem | Where-Object {$_.Extension -eq '.hcx' -or $_.Extension -eq '.sm'}
+                try {
+                    if (($Files | Measure-Object).Count -eq 0) { throw; }
+                }
+                catch {
+                    $Msg = "Unable to find any hcx or sm files in current directory."; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+                }
+
+                $Pipe = $Files | Select-Object @{ n = 'File'; e = { $_.FullName } }, @{ n = 'OutDir'; e = { "$($_.Directory)\_hcposh_installer\$($_.BaseName)" } }
+
+
+                if ($OutVar) {
+                    ($Pipe | Invoke-Installer | Select-Object RawData).RawData
+                }
+                else {
+                    $Pipe | Invoke-Installer | Out-Null
+                }
+
             }
             'Diagrams' {
                 if (!$OutDir) {
