@@ -26,7 +26,7 @@ class DataMart {
 }
 class Connection {
     [int] $Id
-    #[guid] $ContentId
+    [guid] $ContentId
     [string] $SystemName
     [string] $Description
     [string] $DataSystemTypeCode
@@ -220,7 +220,7 @@ function Invoke-Installer {
         foreach ($RawConnection in $RawData.Connections) {
             $Connection = [Connection]::new()
             $Connection.Id = GetId($RawConnection.ContentId)
-            #$Connection.ContentId = $RawConnection.ContentId
+            $Connection.ContentId = $RawConnection.ContentId
             $Connection.SystemName = NullableString($RawConnection.SystemName)
             $Connection.Description = NullableString($RawConnection.Description)
             $Connection.DataSystemTypeCode = NullableString($RawConnection.DataSystemTypeCode)
