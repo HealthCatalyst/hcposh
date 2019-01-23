@@ -6,8 +6,8 @@ class Id {
     }
 }
 class DataMart {
-    #[int] $Id
-    #[guid] $ContentId
+    [int] $Id
+    [guid] $ContentId
     [string] $Name
     [string] $DataMartType
     [string] $Description
@@ -37,7 +37,7 @@ class Connection {
 }
 class Entity {
     [int] $Id
-    #[guid] $ContentId
+    [guid] $ContentId
     [int] $ConnectionId
     [string] $BusinessDescription
     [string] $EntityName
@@ -55,8 +55,8 @@ class Entity {
     [ObjectAttributeValue[]] $AttributeValues
 }
 class Binding {
-    #[int] $Id
-    #[guid] $ContentId
+    [int] $Id
+    [guid] $ContentId
     [string] $Name
     [int] $DestinationEntityId
     [int] $SourceConnectionId
@@ -72,7 +72,7 @@ class Binding {
 }
 class Field {
     [int] $Id
-    #[guid] $ContentId
+    [guid] $ContentId
     [string] $FieldName
     [string] $BusinessDescription
     [string] $TechnicalDescription
@@ -92,7 +92,7 @@ class Field {
 }
 class Index {
     [int] $Id
-    #[guid] $ContentId
+    [guid] $ContentId
     [string] $IndexName
     [bool] $IsUnique
     [bool] $IsActive
@@ -203,8 +203,8 @@ function Invoke-Installer {
         }            
 
         $DataMart = [DataMart]::new()
-        #$DataMart.Id = GetId($RawData.ContentId)
-        #$DataMart.ContentId = $RawData.ContentId
+        $DataMart.Id = GetId($RawData.ContentId)
+        $DataMart.ContentId = $RawData.ContentId
         $DataMart.Name = NullableString($RawData.DataMartNM)
         $DataMart.DataMartType = ($RawData.DataMartTypeDSC)
         $DataMart.Description = NullableString($RawData.DescriptionTXT)
@@ -250,7 +250,7 @@ function Invoke-Installer {
         foreach ($RawEntity in $RawData.Tables) {
             $Entity = [Entity]::new()
             $Entity.Id = GetId($RawEntity.ContentId)
-            #$Entity.ContentId = $RawEntity.ContentId
+            $Entity.ContentId = $RawEntity.ContentId
             $Entity.ConnectionId = GetId($RawEntity.DestinationConnection.ContentId)
             $Entity.BusinessDescription = NullableString($RawEntity.DescriptionTXT)
             $Entity.EntityName = NullableString($RawEntity.ViewName)
@@ -309,8 +309,8 @@ function Invoke-Installer {
 
             foreach ($RawBinding in $RawEntity.FedByBindings) {
                 $Binding = [Binding]::new()
-                #$Binding.Id = GetId($RawBinding.ContentId)
-                #$Binding.ContentId = $RawBinding.ContentId
+                $Binding.Id = GetId($RawBinding.ContentId)
+                $Binding.ContentId = $RawBinding.ContentId
                 $Binding.Name = NullableString($RawBinding.BindingName)
                 $Binding.DestinationEntityId = $Entity.Id
                 $Binding.SourceConnectionId = GetId($RawBinding.SourceConnection.ContentId)
@@ -338,7 +338,7 @@ function Invoke-Installer {
             foreach ($RawField in $RawEntity.Columns) {
                 $Field = [Field]::new()
                 $Field.Id = GetId($RawField.ContentId)
-                #$Field.ContentId = $RawField.ContentId
+                $Field.ContentId = $RawField.ContentId
                 $Field.FieldName = NullableString($RawField.ColumnNM)
                 $Field.BusinessDescription = NullableString($RawField.DescriptionTXT)
                 $Field.DataType = NullableString($RawField.DataTypeDSC)
@@ -369,7 +369,7 @@ function Invoke-Installer {
             foreach ($RawIndex in $RawEntity.Indexes) {
                 $Index = [Index]::new()
                 $Index.Id = GetId($RawIndex.ContentId)
-                #$Index.ContentId = $RawIndex.ContentId
+                $Index.ContentId = $RawIndex.ContentId
                 $Index.IndexName = NullableString($RawIndex.IndexName)
                 $Index.IsUnique = $RawIndex.IsUnique
                 $Index.IsActive = $RawIndex.IsActive
