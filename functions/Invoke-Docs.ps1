@@ -35,7 +35,7 @@ function Invoke-Docs {
                 $Data.Entities = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
             }
         }
-        $validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'Generic') -contains $_.ClassificationCode) }
+        $validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'ReportingView', 'Generic') -contains $_.ClassificationCode) }
 						
         function Get-Entity ($ContentId) {
             return $Data.Entities[$Data.Entities.ContentId.IndexOf($ContentId)]
