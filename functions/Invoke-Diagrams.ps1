@@ -8,7 +8,7 @@ function Invoke-Diagrams {
         [switch]$OutZip
     )
     begin {
-        $Filters = Get-EntityFilterLogic;
+        $Filters = Get-EntityFilterCriteria;
         $FilteredEntities = (Invoke-Expression $Filters.PowerShell);
         
         #Directories

@@ -36,7 +36,7 @@ function Invoke-Docs {
             }
         }
         
-        $Filters = Get-EntityFilterLogic;
+        $Filters = Get-EntityFilterCriteria;
         $FilteredEntities = (Invoke-Expression $Filters.PowerShell);
                                        
         function Get-Entity ($ContentId) {
@@ -136,10 +136,7 @@ function Invoke-Docs {
         #endregion						
         #endregion
         #region ADD DYNAMIC ENTITY FILTER LOGIC
-        # $EntityFilterLogic = New-Object PSObject
-        # $EntityFilterLogic | Add-Member -Type NoteProperty -Name PowerShell -Value $Filters.PowerShell;
-        # $EntityFilterLogic | Add-Member -Type NoteProperty -Name JavaScript -Value $Filters.JavaScript;
-        # $Data | Add-Member -Type NoteProperty -Name EntityFilterLogic -Value $EntityFilterLogic;
+         $Data | Add-Member -Type NoteProperty -Name EntityFilterCriteria -Value $Filters.JavaScript;
         #endregion
         #region ADD COUNT DETAILS
         $Sources = New-Object PSObject

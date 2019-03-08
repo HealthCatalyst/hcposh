@@ -11,7 +11,7 @@ function New-Erd {
     $Erd.Erd.Data.GraphName = $Data.DatamartNM
                     
     #Get all the entities that we want to be nodes in the ERD diagram
-    $Filters = Get-EntityFilterLogic;
+    $Filters = Get-EntityFilterCriteria;
     $FilteredEntities = (Invoke-Expression $Filters.PowerShell);
     $Entities = $Data.Entities | Where-Object $FilteredEntities
                     
