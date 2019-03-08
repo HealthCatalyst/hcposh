@@ -8,7 +8,8 @@ function Invoke-Diagrams {
         [switch]$OutZip
     )
     begin {
-        $validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'Generic') -contains $_.ClassificationCode) }
+        $Filters = Get-EntityFilterLogic;
+        $FilteredEntities = (Invoke-Expression $Filters.PowerShell);
         
         #Directories
         $DiagramsDir = "$($OutDir)"; New-Directory -Dir $DiagramsDir;
@@ -26,7 +27,7 @@ function Invoke-Diagrams {
         $DocsData.Diagrams.DfdUpstream.Graphviz.TB | Out-File -FilePath $($GvDir + '\DFD_TB_Upstream.gv') -Encoding Default | Out-Null
         $DocsData.Diagrams.DfdDownstream.Graphviz.LR | Out-File -FilePath $($GvDir + '\DFD_LR_Downstream.gv') -Encoding Default | Out-Null
         $DocsData.Diagrams.DfdDownstream.Graphviz.TB | Out-File -FilePath $($GvDir + '\DFD_TB_Downstream.gv') -Encoding Default | Out-Null
-        forEach ($DocsPublic in $DocsData.Entities | Where-Object $validPublicEntities) {
+        forEach ($DocsPublic in $DocsData.Entities | Where-Object $FilteredEntities) {
             $PublicDFD_LR = $DocsPublic.Diagrams.Dfd.Graphviz.LR
             $PublicDFD_TB = $DocsPublic.Diagrams.Dfd.Graphviz.TB
             if ($PublicDFD_LR -and $PublicDFD_TB) {
