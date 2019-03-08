@@ -197,8 +197,6 @@ function Invoke-Docs {
         try {
             if (($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count -eq 0) { throw; }
             Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
-            $mainJsFile = Get-ChildItem $DocsDestinationPath -Recurse -Include "main.*.js"
-            ((Get-Content $mainJsFile -Raw) -replace '_REPLACE_ME_WITH_FILTER_LOGIC_', $Filters.JavaScript) | Set-Content -Path $mainJsFile
             'dataMart = ' + ($Data | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
             $Msg = "$(" " * 4)Created new file --> $($Data._hcposh.FileBaseName)\$(Split-Path $DataDir -Leaf)\$(Split-Path $DataFilePath -Leaf)."; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
         }
