@@ -3,7 +3,7 @@ function Get-EntityFilterCriteria {
         $ConfigPath = "_hcposh.config"
         $Filters = New-Object PSObject -Property @{
             PowerShell = "{ (@('Summary','ReportingView','Generic') -contains `$_.ClassificationCode) -and (@('True') -contains `$_.IsPublic) }";
-            JavaScript = @{"Include" = (("ClassificationCode", ("Summary", "ReportingView", "Generic")), ("IsPublic", ($true)))};
+            JavaScript = @{"Include" = (("ClassificationCode", ("Summary", "ReportingView", "Generic")), ("IsPublic", (, $true)))};
         };
     }
     process {
