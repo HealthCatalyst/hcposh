@@ -9,15 +9,15 @@ function Invoke-Docs {
     )
     begin {
         # Get function definition files.
-        $functions = @( Get-ChildItem -Path "$PSScriptRoot\docs" -Filter *.ps1 -ErrorAction SilentlyContinue )
+        $Functions = @( Get-ChildItem -Path "$PSScriptRoot\docs" -Filter *.ps1 -ErrorAction SilentlyContinue )
 
         # Dot source the files
-        foreach ($import in @($functions)) {
+        foreach ($Import in @($Functions)) {
             try {
-                . $import.fullname
+                . $Import.fullname
             }
             catch {
-                Write-Error -Message "Failed to import function $($import.fullname): $_"
+                Write-Error -Message "Failed to import function $($Import.fullname): $_"
             }
         }
 
@@ -35,8 +35,10 @@ function Invoke-Docs {
                 $Data.Entities = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
             }
         }
-        $validPublicEntities = { !($_.IsOverridden) -and $_.IsPublic -and (@('Summary', 'ReportingView', 'Generic') -contains $_.ClassificationCode) }
-						
+        
+        $Filters = Get-EntityFilterCriteria;
+        $FilteredEntities = (Invoke-Expression $Filters.PowerShell);
+                                       
         function Get-Entity ($ContentId) {
             return $Data.Entities[$Data.Entities.ContentId.IndexOf($ContentId)]
         }
@@ -77,9 +79,9 @@ function Invoke-Docs {
         #region DFD
         $Msg = "$(" " * 4)Adding dfd diagrams..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
         try {
-            $Data.Diagrams.Dfd = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $validPublicEntities).Lineage -Type Both).Dfd
-            $Data.Diagrams.DfdUpstream = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $validPublicEntities).Lineage -Type Upstream).Dfd
-            $Data.Diagrams.DfdDownstream = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $validPublicEntities).Lineage -Type Downstream).Dfd
+            $Data.Diagrams.Dfd = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $FilteredEntities).Lineage -Type Both).Dfd
+            $Data.Diagrams.DfdUpstream = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $FilteredEntities).Lineage -Type Upstream).Dfd
+            $Data.Diagrams.DfdDownstream = (New-Dfd -Name $Data.DatamartNM -Lineage ($Data.Entities | Where-Object $FilteredEntities).Lineage -Type Downstream).Dfd
 							
             if (!$KeepFullLineage) {
                 #Remove un-needed properties
@@ -95,13 +97,13 @@ function Invoke-Docs {
             }							
 							
             #ADD DFD DIAGRAM TO EVERY PUBLIC ENTITY
-            forEach ($PublicEntity in $Data.Entities | Where-Object $validPublicEntities) {
-                if ($PublicEntity.SourcedByEntities) {
-                    $PublicEntity | Add-Member -Type NoteProperty -Name Diagrams -Value (New-Object PSObject -Property @{ Dfd = $Null; DfdUpstream = $Null; DfdDownstream = $Null })
-                    $Msg = "$(" " * 4)Adding dfd diagrams...$($PublicEntity.FullyQualifiedNames.Table)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-                    $PublicEntity.Diagrams.Dfd = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Both).Dfd
-                    $PublicEntity.Diagrams.DfdDownstream = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Downstream).Dfd
-                    $PublicEntity.Diagrams.DfdUpstream = (New-Dfd -Name $PublicEntity.FullyQualifiedNames.Table -Lineage $PublicEntity.Lineage -Type Upstream).Dfd
+            forEach ($Entity in $Data.Entities | Where-Object $FilteredEntities) {
+                if ($Entity.SourcedByEntities) {
+                    $Entity | Add-Member -Type NoteProperty -Name Diagrams -Value (New-Object PSObject -Property @{ Dfd = $Null; DfdUpstream = $Null; DfdDownstream = $Null })
+                    $Msg = "$(" " * 4)Adding dfd diagrams...$($Entity.FullyQualifiedNames.Table)..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
+                    $Entity.Diagrams.Dfd = (New-Dfd -Name $Entity.FullyQualifiedNames.Table -Lineage $Entity.Lineage -Type Both).Dfd
+                    $Entity.Diagrams.DfdDownstream = (New-Dfd -Name $Entity.FullyQualifiedNames.Table -Lineage $Entity.Lineage -Type Downstream).Dfd
+                    $Entity.Diagrams.DfdUpstream = (New-Dfd -Name $Entity.FullyQualifiedNames.Table -Lineage $Entity.Lineage -Type Upstream).Dfd
                 }
             }
         }
@@ -110,7 +112,7 @@ function Invoke-Docs {
         }
 						
         #Replace Lineage property with a cleaner version for display purposes
-        forEach ($Entity in $Data.Entities | Where-Object $validPublicEntities) {
+        forEach ($Entity in $Data.Entities | Where-Object $FilteredEntities) {
             $Upstream = Get-LineageCollection -Lineage $Entity.Lineage.Upstream -Data $Data;
             $Downstream = New-Object PSObject;
             if ($($Entity.Lineage.Downstream | Where-Object Level -NE 0)) {
@@ -132,6 +134,9 @@ function Invoke-Docs {
         }
 						
         #endregion						
+        #endregion
+        #region ADD DYNAMIC ENTITY FILTER LOGIC
+         $Data | Add-Member -Type NoteProperty -Name EntityFilterCriteria -Value $Filters.JavaScript;
         #endregion
         #region ADD COUNT DETAILS
         $Sources = New-Object PSObject
@@ -190,7 +195,7 @@ function Invoke-Docs {
         $DocsDestinationPath = $OutDir;
         $DataFilePath = "$($DataDir)\dataMart.js";
         try {
-            if (($Data.Entities | Where-Object $validPublicEntities | Measure-Object).Count -eq 0) { throw; }
+            if (($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count -eq 0) { throw; }
             Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
             'dataMart = ' + ($Data | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
             $Msg = "$(" " * 4)Created new file --> $($Data._hcposh.FileBaseName)\$(Split-Path $DataDir -Leaf)\$(Split-Path $DataFilePath -Leaf)."; Write-Host $Msg -ForegroundColor Cyan; Write-Verbose $Msg; Write-Log $Msg;
