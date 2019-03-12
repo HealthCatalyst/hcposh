@@ -53,6 +53,12 @@ function HCPosh {
     (
         [Parameter(ParameterSetName = 'Version')]
         [switch]$Version,
+        [Parameter(ParameterSetName = 'Config', Mandatory = $True)]
+        [switch]$Config,
+        [Parameter(ParameterSetName = 'Config')]
+        [switch]$Force,
+        [Parameter(ParameterSetName = 'Config')]
+        [string]$Json,
         [Parameter(ParameterSetName = 'SqlParser', Mandatory = $True)]
         [switch]$SqlParser,
         [Parameter(ParameterSetName = 'SqlParser', Mandatory = $True)]
@@ -132,6 +138,12 @@ function HCPosh {
                 catch {
                     "HCPosh is running as an in-memory module"
                 }
+            }
+            'Config' {
+                $invokeConfigParams = @{}
+                if ($Force) {$invokeConfigParams.Add("Force", $Force)}
+                if ($Json) {$invokeConfigParams.Add("Json", $Json)}
+                Invoke-Config @invokeConfigParams
             }
             'SqlParser' {
                 Invoke-SqlParser -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
