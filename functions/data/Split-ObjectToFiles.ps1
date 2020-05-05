@@ -76,7 +76,7 @@ function Split-ObjectToFiles {
             }
             #endregion
             #region CREATE BINDING FILES
-            $Exclusions = @('BindingNameNoSpaces', 'UserDefinedSQL', 'SourcedByEntities', 'IncrementalConfigurations')
+            $Exclusions = @('BindingNameNoSpaces', 'Script', 'SourcedByEntities', 'IncrementalConfigurations')
             forEach ($Group in $Data.Entities.Bindings | Group-Object ClassificationCode) {
                 $Out = @()
                 forEach ($Binding in $Group.Group) {
@@ -102,8 +102,16 @@ function Split-ObjectToFiles {
             #endregion
             #region CREATE SQL FILES
             forEach ($Binding in $Data.Entities.Bindings) {
-                $OutFile = "$($SplitDirectory)\SQL-$($Binding.ClassificationCode)-$(Get-CleanFileName $Binding.BindingName -RemoveSpace).sql"
-                $Binding.UserDefinedSQL | Out-File $OutFile -Encoding Default -Force
+                switch ($Binding.BindingType) {
+                    'SqlBinding' { 
+                        $OutFile = "$($SplitDirectory)\SQL-$($Binding.ClassificationCode)-$(Get-CleanFileName $Binding.BindingName -RemoveSpace).sql"
+                        $Binding.Script | Out-File $OutFile -Encoding Default -Force
+                    }
+                    'RBinding' {
+                        $OutFile = "$($SplitDirectory)\R-$($Binding.ClassificationCode)-$(Get-CleanFileName $Binding.BindingName -RemoveSpace).r"
+                        $Binding.Script | Out-File $OutFile -Encoding Default -Force
+                    }
+                }
             }
             #endregion
             #region CREATE COLUMN FILES

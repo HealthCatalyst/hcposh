@@ -124,7 +124,11 @@ function Invoke-Data {
                 $HCBinding.BindingDescription = $Binding.BindingDescription
                 $HCBinding.ClassificationCode = $Binding.ClassificationCode
                 $HCBinding.GrainName = $Binding.GrainName
-                $HCBinding.UserDefinedSQL = $Binding.UserDefinedSQL
+                $HCBinding.BindingType = $Binding.GetType().ToString().split('.')[-1]
+                switch ($HCBinding.BindingType) {
+                    'SqlBinding' { $HCBinding.Script = $Binding.UserDefinedSQL }
+                    'RBinding' { $HCBinding.Script = $Binding.Script }
+                }
                 #New attributes introduced with CAP 4.0
                 $IsProtected = $Binding.AttributeValues | Where-Object AttributeName -eq 'IsProtected'
                 if ($IsProtected) {
@@ -240,8 +244,8 @@ function Invoke-Data {
         #region PARSE BINDINGS
         $Msg = "$(" " * 4)Parsing tables and columns from sql..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
         foreach ($HCEntity in $Data.Entities) {
-            foreach ($HCBinding in $HCEntity.Bindings) {
-                $SourcedByEntities = $(Invoke-SqlParser -Query $HCBinding.UserDefinedSQL -Log $False -SelectStar $False -Brackets $False)
+            foreach ($HCBinding in $HCEntity.Bindings | Where-Object BindingType -eq 'SqlBinding') {
+                $SourcedByEntities = $(Invoke-SqlParser -Query $HCBinding.Script -Log $False -SelectStar $False -Brackets $False)
                 
                 foreach ($SourcedByEntity in $SourcedByEntities | Where-Object { $_.DatabaseNM -and $_.SchemaNM -and $_.TableNM }) {
                     $HCSourcedByEntity = New-HCEmptySourcedByEntityObject
