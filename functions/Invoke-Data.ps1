@@ -429,27 +429,27 @@ function Invoke-Data {
         }
         #endregion
         #region ADD GIT REPO PROPERTIES
-        try {
-            $Msg = "$(" " * 4)Adding git properties..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
-            function checkGit {
-                [CmdletBinding()]
-                param ()
-                begin {
-                    if (!(Test-Path $((Get-Location).Path + '\.git'))) { throw; }
-                }
-                process {
-                    git --version
-                    $GitUrl = (git config --local remote.origin.url).Replace(".git", "")
-                    $Data | Add-Member -Type NoteProperty -Name Team -Value $(($GitUrl -split "/")[3])
-                    $Data | Add-Member -Type NoteProperty -Name Repository -Value $(($GitUrl -split "/")[4])
-                    $Data | Add-Member -Type NoteProperty -Name Branch -Value $(git rev-parse --abbrev-ref HEAD)
-                }
-            }
-            checkGit -ErrorAction Stop
-        }
-        catch {
-            $Msg = "$(" " * 8)Git not installed or not inside a git directory -- unable to add git properties"; Write-Host $Msg -ForegroundColor Yellow; Write-Verbose $Msg; Write-Log $Msg 'warning';
-        }
+        # try {
+        #     $Msg = "$(" " * 4)Adding git properties..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
+        #     function checkGit {
+        #         [CmdletBinding()]
+        #         param ()
+        #         begin {
+        #             if (!(Test-Path $((Get-Location).Path + '\.git'))) { throw; }
+        #         }
+        #         process {
+        #             git --version
+        #             $GitUrl = (git config --local remote.origin.url).Replace(".git", "")
+        #             $Data | Add-Member -Type NoteProperty -Name Team -Value $(($GitUrl -split "/")[3])
+        #             $Data | Add-Member -Type NoteProperty -Name Repository -Value $(($GitUrl -split "/")[4])
+        #             $Data | Add-Member -Type NoteProperty -Name Branch -Value $(git rev-parse --abbrev-ref HEAD)
+        #         }
+        #     }
+        #     checkGit -ErrorAction Stop
+        # }
+        # catch {
+        #     $Msg = "$(" " * 8)Git not installed or not inside a git directory -- unable to add git properties"; Write-Host $Msg -ForegroundColor Yellow; Write-Verbose $Msg; Write-Log $Msg 'warning';
+        # }
         #endregion
         #region SPLIT OBJECT INTO SMALLER FILES
         if (!$NoSplit) {
