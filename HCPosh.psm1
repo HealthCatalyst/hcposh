@@ -84,6 +84,10 @@ function HCPosh {
         [switch]$Data,
         [Parameter(ParameterSetName = 'Data')]
         [Parameter(ParameterSetName = 'Docs')]
+        [ValidateScript( { if ( -Not ($_ | Test-Path) -and -Not ($_.EndsWith(".hcx")) ) { throw "File or folder does not exist" } return $true })]
+        [string]$Path,
+        [Parameter(ParameterSetName = 'Data')]
+        [Parameter(ParameterSetName = 'Docs')]
         [Parameter(ParameterSetName = 'Installer')]
         [switch]$OutVar,
         [Parameter(ParameterSetName = 'Data')]
@@ -141,15 +145,20 @@ function HCPosh {
             }
             'Config' {
                 $invokeConfigParams = @{}
-                if ($Force) {$invokeConfigParams.Add("Force", $Force)}
-                if ($Json) {$invokeConfigParams.Add("Json", $Json)}
+                if ($Force) { $invokeConfigParams.Add("Force", $Force) }
+                if ($Json) { $invokeConfigParams.Add("Json", $Json) }
                 Invoke-Config @invokeConfigParams
             }
             'SqlParser' {
                 Invoke-SqlParser -Query $Query -Log $Log -SelectStar $SelectStar -Brackets $Brackets
             }
             'Data' {
-                $Files = Get-ChildItem | Where-Object Extension -eq '.hcx'
+                if ($Path) {
+                    $Files = Get-Item $Path
+                }
+                else {
+                    $Files = Get-ChildItem | Where-Object Extension -eq '.hcx'
+                }
 				
                 try {
                     if (($Files | Measure-Object).Count -eq 0) { throw; }
@@ -181,7 +190,15 @@ function HCPosh {
                 if (!$OutDir) {
                     $OutDir = (Get-Location).Path + '\_hcposh_docs'
                 }
-                $OutDataArray = HCPosh -Data -OutVar -NoSplit | Where-Object { $_ };
+                $params = @{
+                    Data    = $true
+                    OutVar  = $true
+                    NoSplit = $true
+                }
+                if ($Path) {
+                    $params.Add('Path', $Path)
+                }
+                $OutDataArray = HCPosh @params | Where-Object { $_ };
                 forEach ($OutData in $OutDataArray) {
                     $NewOutDir = $OutDir + '\' + $OutData._hcposh.FileBaseName
                     if ($OutZip) {
@@ -203,7 +220,7 @@ function HCPosh {
                 }
             }
             'Installer' {
-                $Files = Get-ChildItem | Where-Object {$_.Extension -eq '.hcx' -or $_.Extension -eq '.sm'}
+                $Files = Get-ChildItem | Where-Object { $_.Extension -eq '.hcx' -or $_.Extension -eq '.sm' }
                 try {
                     if (($Files | Measure-Object).Count -eq 0) { throw; }
                 }
