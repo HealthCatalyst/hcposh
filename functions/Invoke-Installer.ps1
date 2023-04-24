@@ -81,6 +81,7 @@ function Invoke-Installer {
             $jsonSettings = New-Object Newtonsoft.Json.JsonSerializerSettings
             $jsonSettings.TypeNameHandling = 'Objects'
             $jsonSettings.PreserveReferencesHandling = 'Objects'
+            $jsonSettings.MaxDepth = $null
             $RawData = [Newtonsoft.Json.JsonConvert]::DeserializeObject($RawContent, $jsonSettings)
             if (Test-Path $OutBin) {
                 Remove-Item $OutBin -Recurse -Force
