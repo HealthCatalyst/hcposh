@@ -62,6 +62,7 @@ function Invoke-DataRaw {
                 $jsonSettings = New-Object Newtonsoft.Json.JsonSerializerSettings
                 $jsonSettings.TypeNameHandling = 'Objects'
                 $jsonSettings.PreserveReferencesHandling = 'Objects'
+                $jsonSettings.MaxDepth = $null
                 $RawData = [Newtonsoft.Json.JsonConvert]::DeserializeObject($RawContent, $jsonSettings)
             }
             catch {
