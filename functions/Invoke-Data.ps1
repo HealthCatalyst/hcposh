@@ -244,7 +244,9 @@ function Invoke-Data {
         #region PARSE BINDINGS
         $Msg = "$(" " * 4)Parsing tables and columns from sql..."; Write-Host $Msg -ForegroundColor Gray; Write-Verbose $Msg; Write-Log $Msg;
         foreach ($HCEntity in $Data.Entities) {
-            foreach ($HCBinding in $HCEntity.Bindings | Where-Object BindingType -eq 'SqlBinding') {
+            foreach ($HCBinding in $HCEntity.Bindings | Where-Object BindingType -eq 'SqlBinding' | Where-Object {-not([String]::IsNullOrEmpty($_.Script))}) {
+                #For each SqlBinding that has a Script value:
+                
                 $SourcedByEntities = $(Invoke-SqlParser -Query $HCBinding.Script -Log $False -SelectStar $False -Brackets $False)
                 
                 foreach ($SourcedByEntity in $SourcedByEntities | Where-Object { $_.DatabaseNM -and $_.SchemaNM -and $_.TableNM }) {
