@@ -23,13 +23,13 @@ function Get-LineageCollection {
             $Group2 = $Stream.Groups.Group2;
             $Group3 = $Stream.Groups.Group3;
                             
-            if (!($Collection.PSobject.Properties.Name -match $Group1)) {
+            if (!($Collection.PSobject.Properties.Name -match "^$Group1`$")) {
                 $Collection | Add-Member -Type NoteProperty -Name $Group1 -Value (New-Object PSObject)
             }
-            if (!($Collection.$Group1.PSobject.Properties.Name -match $Group2)) {
+            if (!($Collection.$Group1.PSobject.Properties.Name -match "^$Group2`$")) {
                 $Collection.$Group1 | Add-Member -Type NoteProperty -Name $Group2 -Value (New-Object PSObject)
             }
-            if (!($Collection.$Group1.$Group2.PSobject.Properties.Name -match $Group3)) {
+            if (!($Collection.$Group1.$Group2.PSobject.Properties.Name -match "^$Group3`$")) {
                 $Collection.$Group1.$Group2 | Add-Member -Type NoteProperty -Name $Group3 -Value @()
             }
             $Table = New-Object PSObject
