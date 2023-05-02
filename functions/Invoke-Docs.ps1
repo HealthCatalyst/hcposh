@@ -202,6 +202,7 @@ function Invoke-Docs {
         }
         catch {
             $Msg = "$(" " * 4)Unable to find valid public entities or An error occurred when trying to create the docs folder structure"; Write-Host $Msg -ForegroundColor Red; Write-Verbose $Msg; Write-Log $Msg 'error';
+            throw "$(" " * 4)Unable to find valid public entities or An error occurred when trying to create the docs folder structure"
         }
         if ($OutZip) {
             try {
