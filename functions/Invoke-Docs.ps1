@@ -32,7 +32,18 @@ function Invoke-Docs {
             $Entity.Bindings = $Bindings;
 							
             if ($Entity.ClassificationCode -ne 'DataEntry' -and ($Entity.Bindings | Measure-Object).Count -eq 0) {
-                $Data.Entities = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
+                #if the entity doesn't have any bindings, exclude it.
+
+                #we create a new array and use a foreach loop because if there is only one entity remaining and we use powershell piping
+                #  the $Data.Entities array will transform to a PSCustomObject, which break the javascript code because the javascript
+                #  is expecting an array, not a single PSCustomObject.
+                $newEntitiesArray = @()
+                $entitiesToKeep = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
+                foreach($tempEntity in $entitiesToKeep){
+                    $newEntitiesArray += $tempEntity
+                }
+                #$Data.Entities = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
+                $Data.Entities = $newEntitiesArray
             }
         }
         
@@ -195,7 +206,7 @@ function Invoke-Docs {
         $DocsDestinationPath = $OutDir;
         $DataFilePath = "$($DataDir)\dataMart.js";
         try {
-            Write-Host "$(" " * 4) Public Entity Count: $(($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count)"
+            Write-Host "$(" " * 4)Public Entity Count: $(($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count)"
             if (($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count -eq 0) { throw; }
             Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
             'dataMart = ' + ($Data | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
