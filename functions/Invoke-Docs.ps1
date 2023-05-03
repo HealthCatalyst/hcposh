@@ -195,6 +195,7 @@ function Invoke-Docs {
         $DocsDestinationPath = $OutDir;
         $DataFilePath = "$($DataDir)\dataMart.js";
         try {
+            Write-Host "$(" " * 4) Public Entity Count: $(($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count)"
             if (($Data.Entities | Where-Object $FilteredEntities | Measure-Object).Count -eq 0) { throw; }
             Copy-Item -Path $DocsSourcePath -Recurse -Destination $DocsDestinationPath -Force
             'dataMart = ' + ($Data | ConvertTo-Json -Depth 100 -Compress) | Out-File $DataFilePath -Encoding Default -Force | Out-Null
