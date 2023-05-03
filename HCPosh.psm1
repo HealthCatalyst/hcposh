@@ -200,10 +200,6 @@ function HCPosh {
                 }
                 $OutDataArray = HCPosh @params | Where-Object { $_ };
                 forEach ($OutData in $OutDataArray) {
-                    write-host "Outdata Type: $($OutData.gettype())"
-                    write-host "OutData.Entities type: $($OutData.Entities.gettype())"
-                    write-host "OutData.Entities Length: $($OutData.Entities.Length)"
-
                     $NewOutDir = $OutDir + '\' + $OutData._hcposh.FileBaseName
                     if ($OutZip) {
                         if ($OutVar) {
