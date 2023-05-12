@@ -35,7 +35,7 @@ function Invoke-Docs {
                 #if the entity doesn't have any bindings, exclude it.
 
                 #we create a new array and use a foreach loop because if there is only one entity remaining and we use powershell piping
-                #  the $Data.Entities array will transform to a PSCustomObject, which break the javascript code because the javascript
+                #  the $Data.Entities array will transform to a PSCustomObject, which breaks the javascript code because the javascript
                 #  is expecting an array, not a single PSCustomObject.
                 $newEntitiesArray = @()
                 $entitiesToKeep = $Data.Entities | Where-Object { $_ -ne $Data.Entities[$Data.Entities.ContentId.IndexOf($Entity.ContentId)] }
